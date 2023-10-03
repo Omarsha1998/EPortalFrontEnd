@@ -1,0 +1,117 @@
+// app global css in SCSS form
+.bgImageUERM {
+  background-image: url("../assets/images/uerm-background.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
+.cardStyle {
+  padding: 10px;
+  color: black;
+  border-radius: 5px;
+  word-wrap: break-word;
+}
+
+.borderStyle {
+  border-style: solid;
+  border-color: #E5E8E8;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  border-width: 2px;
+  background-color: white;
+}
+
+.marginTop20px {
+  margin-top: 20px;
+}
+
+.my-sticky-header-table {
+  /* height or max-height is important */
+  height: 310px;
+  /* this is when the loading indicator appears */
+  /* prevent scrolling behind sticky top row on focus */
+}
+
+.my-sticky-header-table .q-table__top,
+.my-sticky-header-table .q-table__bottom,
+.my-sticky-header-table thead tr:first-child th {
+  /* bg color is important for th; just specify one */
+  background-color: white;
+}
+
+.my-sticky-header-table thead tr th {
+  position: sticky;
+  z-index: 1;
+}
+
+.my-sticky-header-table thead tr:first-child th {
+  top: 0;
+}
+
+.my-sticky-header-table.q-table--loading thead tr:last-child th {
+  /* height of all previous header rows */
+  top: 48px;
+}
+
+.my-sticky-header-table tbody {
+  /* height of all previous header rows */
+  scroll-margin-top: 48px;
+}
+
+
+.example-row-equal-width .row>div {
+  padding: 10px 15px;
+  background-color: #EAECEE;
+}
+
+.example-row-equal-width .row+.row {
+  margin-top: 1rem;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(153, 153, 153, 0.15);
+  text-align: center;
+  border-style: solid;
+  border-color: #e5e8e8;
+}
+
+.q-expansion-item--expanded {
+  border: 1px solid #000000;
+  border-color: #e5e8e8;
+  color: #1681ec;
+  background-color: #f4f6f6;
+  font-weight: 600;
+}
+
+.center{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.buttonBlock {
+  width: 150px;
+}
+
+.notHighlightedRow{
+  background-color : #EBF5FB;
+   font-weight: normal;
+}
+
+.highlightedRow{
+  background-color : #fff;
+   font-weight: bold;
+}
+
+.rowSelected{
+  background-color: #1681ec;
+  color: #fff;
+   font-weight: normal;
+}
