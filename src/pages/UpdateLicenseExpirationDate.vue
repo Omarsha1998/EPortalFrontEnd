@@ -167,9 +167,9 @@ export default {
     ...mapActions(["getUser"]),
     onRejected: function (rejectedFiles) {
       const errorsMap = {
-        accept: "(.jpg or .jpeg or .pdf) file is only allowed.",
+        accept: "(.pdf) file is only allowed to upload.",
         "max-file-size":
-          "The file size exceeded 5MB. Please reduce the file resolution.",
+          "The file size exceeded 5MB. Please reduce the file size.",
       };
 
       rejectedFiles.forEach((rejectedFile) => {
@@ -280,6 +280,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-</style>

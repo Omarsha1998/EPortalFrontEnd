@@ -28,7 +28,7 @@
           <div class="row bg-white">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Full Name"
                 maxlength="80"
@@ -40,7 +40,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="date"
                 label="Birth Date"
                 v-model="this.submit.create.birth_date"
@@ -51,7 +51,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Occupation"
                 maxlength="60"
@@ -63,7 +63,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Company Name"
                 maxlength="150"
@@ -75,7 +75,7 @@
               >
               </q-input>
               <q-file
-                accept=".jpg, .jpeg, .png, .pdf"
+                accept=".pdf"
                 clearable
                 v-model="this.submit.create.attach_marriage_certificate"
                 label="Attach - Marriage Certificate"
@@ -94,7 +94,7 @@
                 <template v-slot:hint> (5MB maximum file size) </template>
               </q-file>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="date"
                 label="Marriage Date (Optional)"
                 v-model="this.submit.create.marriage_date"
@@ -102,6 +102,7 @@
               </q-input>
             </div>
           </div>
+                   <br />
           <div class="row" style="margin-top: 13px">
             <q-btn
               id="btnSubmit"
@@ -198,7 +199,7 @@
           <div class="row bg-white">
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Full Name"
                 maxlength="80"
@@ -212,7 +213,7 @@
             </div>
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="date"
                 label="Birth Date"
                 v-model="this.submit.edit.birth_date"
@@ -225,7 +226,7 @@
             </div>
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Occupation"
                 maxlength="60"
@@ -240,7 +241,7 @@
 
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Company Name"
                 maxlength="150"
@@ -261,7 +262,7 @@
               "
             >
               <q-file
-                accept=".jpg, .jpeg, .png, .pdf"
+                accept=".pdf"
                 clearable
                 v-model="this.submit.edit.attach_marriage_certificate"
                 label="Attach - Marriage Certificate"
@@ -283,7 +284,7 @@
 
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="date"
                 label="Marriage Date (Optional)"
                 v-model="submit.edit.marriage_date"
@@ -291,6 +292,7 @@
               </q-input>
             </div>
           </div>
+          <br />
           <div class="column example-row-equal-width">
             <div class="row">
               <div class="col">
@@ -413,9 +415,9 @@ export default {
     },
     onRejected: function (rejectedFiles) {
       const errorsMap = {
-        accept: "(.jpg or .jpeg or .pdf or .png) file is only allowed.",
+        accept: "(.pdf) file is only allowed to upload.",
         "max-file-size":
-          "The file size exceeded 5MB. Please reduce the file resolution.",
+          "The file size exceeded 5MB. Please reduce the file size.",
       };
 
       rejectedFiles.forEach((rejectedFile) => {
@@ -473,7 +475,7 @@ export default {
           message: "Sucessfully submitted.",
         });
 
-        return this.$router.push("/my-requests");
+        return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -484,6 +486,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-</style>

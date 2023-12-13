@@ -63,7 +63,7 @@
           <div class="row bg-white">
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Full Name"
                 maxlength="80"
@@ -77,7 +77,7 @@
             </div>
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="date"
                 label="Birth Date"
                 v-model="this.edit.submit.birth_date"
@@ -90,7 +90,7 @@
             </div>
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Occupation"
                 maxlength="60"
@@ -105,7 +105,7 @@
 
             <div class="col-lg-6 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Company Name"
                 maxlength="150"
@@ -118,6 +118,7 @@
               </q-input>
             </div>
           </div>
+                   <br />
           <div class="column example-row-equal-width">
             <div class="row">
               <div class="col">
@@ -226,7 +227,7 @@ export default {
           type: "positive",
           message: "Successfully submitted.",
         });
-        return this.$router.push("/my-requests");
+        return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -237,6 +238,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-</style>

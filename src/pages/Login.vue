@@ -49,7 +49,8 @@
 
                   <div class="text-center q-mt-sm q-gutter-lg">
                     <br />
-
+                      
+                      v {{ app_version }}
                     <!-- <q-btn
                       color="primary"
                       label="ASD"
@@ -95,6 +96,7 @@ export default {
         employee_id: null,
         password: null,
       },
+      app_version: process.env.APP_VERSION
     };
   },
   mounted: function () {
@@ -160,6 +162,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-</style>

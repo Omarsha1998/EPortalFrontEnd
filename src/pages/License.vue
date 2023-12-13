@@ -3,7 +3,7 @@
     <q-item-section avatar class="items-center" style="margin: 0 10px">
       <h4 class="text-center">
         <q-icon name="newspaper" />
-        Licenses
+        License
       </h4>
     </q-item-section>
 
@@ -132,7 +132,7 @@ import { defineComponent } from "vue";
 import helperMethods from "../helperMethods.js";
 
 export default defineComponent({
-  name: "Licenses",
+  name: "License",
   data: function () {
     return {
       tab: "view",

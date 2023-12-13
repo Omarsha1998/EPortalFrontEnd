@@ -3,7 +3,7 @@ import helperMethods from "../helperMethods.js";
 
 export class PersonalInformationService {
   static serverURL = process.env.BACKEND_REST_API_URL;
-  static controllerName = '/api/personal-information/';
+  static controllerName = '/api/personal-informations/';
   static timeOut = process.env.BACKEND_REST_API_TIMEOUT;
 
   static createRequest(body) {

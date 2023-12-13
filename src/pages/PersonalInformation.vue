@@ -4,7 +4,7 @@
       <q-item-section avatar class="items-center" style="margin: 0 10px">
         <h4 class="text-center">
           <q-icon name="info" />
-          Personal Informations
+          Personal Information
         </h4>
       </q-item-section>
 
@@ -65,7 +65,7 @@
             <div class="row bg-white">
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Last Name"
                   maxlength="30"
@@ -81,7 +81,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="First Name"
                   maxlength="40"
@@ -97,7 +97,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Middle Name (Optional)"
                   maxlength="30"
@@ -109,7 +109,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Extension Name (Optional)"
                   maxlength="5"
@@ -120,7 +120,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Nick Name (Optional)"
                   maxlength="15"
@@ -131,7 +131,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   label="Personal Email"
                   maxlength="100"
                   v-model="edit.submit.personal_email"
@@ -145,7 +145,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Mobile No"
                   maxlength="15"
@@ -161,7 +161,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Telephone No (Optional)"
                   maxlength="15"
@@ -172,7 +172,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Height (cm)"
                   maxlength="10"
@@ -188,7 +188,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Weight (kg)"
                   maxlength="10"
@@ -204,7 +204,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Address"
                   maxlength="150"
@@ -220,7 +220,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-select
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   v-model="this.edit.submit.civil_status_id"
                   :options="edit.options.civil_status"
                   label="Civil Status"
@@ -235,7 +235,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-select
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   v-model="this.edit.submit.religion_id"
                   :options="edit.options.religion"
                   label="Religion"
@@ -250,7 +250,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Contact Person Name"
                   maxlength="50"
@@ -266,7 +266,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Contact Person Address"
                   maxlength="150"
@@ -282,7 +282,7 @@
 
               <div class="col-lg-6 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Contact Person Contact No"
                   maxlength="15"
@@ -297,7 +297,9 @@
               </div>
             </div>
             <br />
-            <br />
+            <br />        
+           <br />
+        
             <div class="footer">
               <div class="column example-row-equal-width">
                 <div class="row">
@@ -341,7 +343,7 @@ import helperMethods from "../helperMethods.js";
 import { PersonalInformationService } from "src/services/PersonalInformationService.js";
 
 export default {
-  name: "PersonalInformations",
+  name: "PersonalInformation",
   mounted: function () {
     $q = useQuasar();
   },
@@ -497,7 +499,7 @@ export default {
           type: "positive",
           message: response.data,
         });
-        return this.$router.push("/my-requests");
+        return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -531,7 +533,3 @@ export default {
   },
 };
 </script>
-
-
-<style scoped>
-</style>

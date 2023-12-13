@@ -92,7 +92,7 @@
               >
                 <q-input
                   v-if="property === 'full_name'"
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Full Name"
                   maxlength="80"
@@ -106,7 +106,7 @@
                 </q-input>
                 <q-input
                   v-else-if="property === 'birth_date'"
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="date"
                   label="Birth Date"
                   v-model="this.submit.edit.children[index].birth_date"
@@ -119,7 +119,7 @@
                 </q-input>
                 <q-input
                   v-else-if="property === 'occupation'"
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Occupation"
                   maxlength="60"
@@ -133,7 +133,7 @@
                 </q-input>
                 <q-input
                   v-else-if="property === 'school_name_or_company_name'"
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="School Name or Company Name"
                   maxlength="150"
@@ -154,7 +154,7 @@
                     this.submit.edit.children[index].has_birth_certificate ===
                       false
                   "
-                  accept=".jpg, .jpeg, .png, .pdf"
+                  accept=".pdf"
                   clearable
                   v-model="
                     this.submit.edit.children[index].attach_birth_certificate
@@ -177,7 +177,6 @@
               </div>
             </div>
           </div>
-          <br />
           <br />
           <div class="footer">
             <div class="column example-row-equal-width">
@@ -258,7 +257,7 @@
           <div class="row bg-white">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Full Name"
                 maxlength="80"
@@ -270,7 +269,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="date"
                 label="Birth Date"
                 v-model="this.submit.model.birth_date"
@@ -281,7 +280,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Occupation"
                 maxlength="60"
@@ -293,7 +292,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="School Name or Company Name"
                 maxlength="150"
@@ -305,7 +304,7 @@
               >
               </q-input>
               <q-file
-                accept=".jpg, .jpeg, .png, .pdf"
+                accept=".pdf"
                 clearable
                 v-model="this.submit.model.attach_birth_certificate"
                 label="Attach - Birth Certificate"
@@ -326,7 +325,6 @@
               <br />
             </div>
           </div>
-
           <div class="row" style="margin-bottom: 14px">
             <q-btn
               class="full-width"
@@ -503,9 +501,9 @@ export default {
     },
     onRejected: function (rejectedFiles) {
       const errorsMap = {
-        accept: "(.jpg or .jpeg or .pdf or .png) file is only allowed.",
+        accept: "(.pdf) file is only allowed to upload.",
         "max-file-size":
-          "The file size exceeded 5MB. Please reduce the file resolution.",
+          "The file size exceeded 5MB. Please reduce the file size.",
       };
 
       rejectedFiles.forEach((rejectedFile) => {
@@ -600,7 +598,7 @@ export default {
           type: "positive",
           message: "Successfully submitted.",
         });
-        return this.$router.push("/my-requests");
+        return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -611,6 +609,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-</style>

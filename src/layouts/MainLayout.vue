@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="lHh Lpr lFf" v-if="$store.state.users.user !== null">
     <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -8,7 +8,7 @@
           round
           icon="menu"
           aria-label="Menu"
-          @click="toggleLeftDrawer"
+          @click="ontoggleLeftDrawer()"
         />
         <q-toolbar-title>{{
           $q.screen.lt.sm ? "UERM PIS" : app_name
@@ -59,7 +59,7 @@
           v-bind="link"
         />
 
-        <q-item @click="onLogout()" href="/personal-informations">
+        <q-item @click="onLogout()" href="/account/login">
           <q-item-section avatar>
             <q-icon name="logout" />
           </q-item-section>
@@ -88,37 +88,41 @@ export default defineComponent({
   components: {
     EssentialLink,
   },
-  setup: function () {
-    const leftDrawerOpen = ref(false);
-    return {
-      leftDrawerOpen,
-      toggleLeftDrawer() {
-        leftDrawerOpen.value = !leftDrawerOpen.value;
-      },
-    };
-  },
   data: function () {
     return {
       app_name: process.env.APP_NAME,
       app_version: process.env.APP_VERSION,
       essentialLinks: this.getLinkLists(),
+      leftDrawerOpen : false,
     };
   },
   created: function () {
+    
     // User is not HR Employee
     if (
       this.$store.state.users.user.personal_informations.department_id !==
       process.env.HR_DEPARTMENT_ID
     ) {
-      this.removeTab("Other Requests");
+      this.removeTab("Other Request");
+      this.removeTab("Attachment Archive");
     }
+
     // User is not license
     if (this.$store.state.users.user.licenses.length === 0) {
-      this.removeTab("Licenses");
+      this.removeTab("License");
     }
+
+    // Check if there is no previous work experiences
+    if (this.$store.state.users.user.work_experiences.length === 0) {
+      this.removeTab("Work Experience");
+    }
+
   },
   methods: {
     ...mapActions(["logout"]),
+    ontoggleLeftDrawer : function() {
+         this.leftDrawerOpen = !this.leftDrawerOpen;
+      },
     onLogout: function () {
       this.logout();
     },
@@ -128,40 +132,50 @@ export default defineComponent({
     getLinkLists: function () {
       let linksList = [
         {
-          title: "Other Requests",
+          title: "Other Request",
           icon: "mail",
-          link: "/other-requests",
+          link: "/other-request",
         },
         {
-          title: "My Requests",
+          title: "My Request",
           icon: "message",
-          link: "/my-requests",
+          link: "/my-request",
         },
 
         {
-          title: "Personal Informations",
+          title: "Personal Information",
           icon: "info",
-          link: "/personal-informations",
+          link: "/personal-information",
         },
         {
-          title: "Family Backgrounds",
+          title: "Family Background",
           icon: "people",
-          link: "/family-backgrounds",
+          link: "/family-background",
         },
         {
-          title: "Educational Backgrounds",
+          title: "Educational Background",
           icon: "school",
-          link: "/educational-backgrounds",
+          link: "/educational-background",
         },
         {
-          title: "Work Experiences",
+          title: "Work Experience",
           icon: "work",
-          link: "/work-experiences",
+          link: "/work-experience",
         },
         {
-          title: "Licenses",
+          title: "License",
           icon: "newspaper",
-          link: "/licenses",
+          link: "/license",
+        },
+        {
+          title: "Training/Seminar",
+          icon: "event",
+          link: "/training-or-seminar",
+        },
+        {
+          title: "Attachment Archive",
+          icon: "upload",
+          link: "/attachment-archive",
         },
       ];
       return linksList;

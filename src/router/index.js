@@ -26,71 +26,89 @@ export default route(function (/* { store, ssrContext } */) {
     routes: [
       {
         path: '/',
-        redirect: '/other-requests',
+        redirect: '/other-request',
         component: () => import('layouts/MainLayout.vue'),
         children: [
           {
-            path: '/other-requests',
-            name: '/OtherRequests',
+            path: '/other-request',
+            name: '/OtherRequest',
             meta: {
-              title: "Other Requests",
+              title: "Other Request",
               requiresAuth: true,
             },
-            component: () => import('src/pages/OtherRequests.vue')
+            component: () => import('src/pages/OtherRequest.vue')
           },
           {
-            path: '/my-requests',
-            name: '/MyRequests',
+            path: '/my-request',
+            name: '/MyRequest',
             meta: {
-              title: "My Requests",
+              title: "My Request",
               requiresAuth: true,
             },
-            component: () => import('src/pages/MyRequests.vue')
+            component: () => import('src/pages/MyRequest.vue')
           },
           {
-            path: '/personal-informations',
-            name: 'PersonalInformations',
+            path: '/personal-information',
+            name: 'PersonalInformation',
             meta: {
-              title: "Personal Informations",
+              title: "Personal Information",
               requiresAuth: true,
             },
-            component: () => import('src/pages/PersonalInformations.vue')
+            component: () => import('src/pages/PersonalInformation.vue')
           },
           {
-            path: '/family-backgrounds',
-            name: 'FamilyBackgrounds',
+            path: '/family-background',
+            name: 'FamilyBackground',
             meta: {
-              title: "Family Backgrounds",
+              title: "Family Background",
               requiresAuth: true,
             },
-            component: () => import('src/pages/FamilyBackgrounds.vue')
+            component: () => import('src/pages/FamilyBackground.vue')
           },
           {
-            path: '/educational-backgrounds',
-            name: 'EducationalBackgrounds',
+            path: '/educational-background',
+            name: 'EducationalBackground',
             meta: {
-              title: "Educational Backgrounds",
+              title: "Educational Background",
               requiresAuth: true,
             },
-            component: () => import('src/pages/EducationalBackgrounds.vue')
+            component: () => import('src/pages/EducationalBackground.vue')
           },
           {
-            path: '/work-experiences',
-            name: 'WorkExperiences',
+            path: '/training-or-seminar',
+            name: 'TrainingOrSeminar',
             meta: {
-              title: "Work Experiences",
+              title: "Training/Seminar",
               requiresAuth: true,
             },
-            component: () => import('src/pages/WorkExperiences.vue')
+            component: () => import('src/pages/TrainingOrSeminar.vue')
           },
           {
-            path: '/licenses',
-            name: 'Licenses',
+            path: '/work-experience',
+            name: 'WorkExperience',
             meta: {
-              title: "Licenses",
+              title: "Work Experience",
               requiresAuth: true,
             },
-            component: () => import('src/pages/Licenses.vue')
+            component: () => import('src/pages/WorkExperience.vue')
+          },
+          {
+            path: '/attachment-archive',
+            name: 'AttachmentArchive',
+            meta: {
+              title: "Attachment Archive",
+              requiresAuth: true,
+            },
+            component: () => import('src/pages/AttachmentArchive.vue')
+          },
+          {
+            path: '/license',
+            name: 'License',
+            meta: {
+              title: "License",
+              requiresAuth: true,
+            },
+            component: () => import('src/pages/License.vue')
           },
         ]
       },
@@ -144,7 +162,7 @@ export default route(function (/* { store, ssrContext } */) {
       if (Store.state.users.user.licenses.length === 0
         &&
         (
-          tofullPathLowerCase.includes("/licenses") === true ||
+          tofullPathLowerCase.includes("/license") === true ||
           tofullPathLowerCase.includes("/update-license-expiration-date") === true
         )
       ) {
@@ -193,16 +211,25 @@ export default route(function (/* { store, ssrContext } */) {
         return next(from);
       }
 
-
       isNotAuthenticated(next);
-
 
       // #region Validation_IsNotHREmployee
       if (Store.state.users.user.personal_informations.department_id !== process.env.HR_DEPARTMENT_ID
         &&
-        tofullPathLowerCase.includes("/other-requests") === true
+        (tofullPathLowerCase.includes("/other-request") === true ||
+        tofullPathLowerCase.includes("/attachment-archive") === true
+        )
       ) {
-        return next('/my-requests');
+        return next('/my-request');
+      }
+      // #endregion
+
+      // #region Validation_IsUserDontHavePreviousWorkExperiences
+      if (Store.state.users.user.work_experiences.length === 0
+        &&
+        tofullPathLowerCase.includes("/work-experience") === true
+      ) {
+        return next('/');
       }
       // #endregion
 

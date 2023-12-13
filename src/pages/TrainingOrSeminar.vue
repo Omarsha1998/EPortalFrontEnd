@@ -2,8 +2,8 @@
   <q-pull-to-refresh @refresh="this.refresh()">
     <q-item-section avatar class="items-center" style="margin: 0 10px">
       <h4 class="text-center">
-        <q-icon name="school" />
-        Educational Backgrounds
+        <q-icon name="event" />
+        Training / Seminar
       </h4>
     </q-item-section>
 
@@ -22,30 +22,30 @@
         <h5
           class="text-center"
           v-if="
-            this.$store.state.users.user.educational_backgrounds.length === 0
+            this.$store.state.users.user.trainings_or_seminars.length === 0
           "
         >
           No Records found
         </h5>
 
         <div
-          v-if="this.$store.state.users.user.educational_backgrounds.length > 0"
+          v-if="this.$store.state.users.user.trainings_or_seminars.length > 0"
         >
           <q-item-label
             class="text-center"
             style="margin-bottom: 15px; font-weight: bold"
             >TOTAL RECORDS : ({{
-              this.$store.state.users.user.educational_backgrounds.length
+              this.$store.state.users.user.trainings_or_seminars.length
             }})</q-item-label
           >
           <div
             class="borderStyle"
-            v-for="education in this.$store.state.users.user
-              .educational_backgrounds"
-            :key="education.diploma"
+            v-for="trainingOrSeminar in this.$store.state.users.user
+              .trainings_or_seminars"
+            :key="trainingOrSeminar.training_or_seminar_name"
           >
             <div
-              v-for="(value, property) in education"
+              v-for="(value, property) in trainingOrSeminar"
               :key="property"
             >
              <div
@@ -62,9 +62,12 @@
               </div>
               <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                 <q-item-label class="cardStyle">
-                  <span v-if="value !== '' && (property === 'attached_tor' || property === 'attached_diploma')">
+                  <span v-if="value !== '' && (property === 'attached_training_or_seminar_certificate')">
                       <a :href="value" target="_blank" style="color: #1681ec"
                       >CLICK HERE</a>
+                  </span>
+                  <span v-else-if="value !== '' && (property === 'from_date' || property === 'to_date')">
+                     {{ formatted(value) }}
                   </span>
                    <span v-else>
                    {{ value }}
@@ -101,41 +104,24 @@
             <div class="row bg-white">
               <div class="col-lg-12 col-md-12 col-sm-12 col-12">
                 <q-input
-                  style="margin: 10px"
-                  type="number"
-                  label="From (yyyy)"
-                  maxlength="4"
-                  v-model="this.submit.create.from"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) || 'This field is required',
-                    (val) => (val && val.length < 5) || 'Maximum digit is 4',
-                    (val) => (val && val.length > 3) || '4 digit is required',
-                  ]"
-                >
-                </q-input>
-                <q-input
-                  style="margin: 10px"
-                  type="number"
-                  label="To (yyyy)"
-                  maxlength="4"
-                  v-model="this.submit.create.to"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) || 'This field is required',
-                    (val) => (val && val.length < 5) || 'Maximum digit is 4',
-                    (val) => (val && val.length > 3) || '4 digit is required',
-                  ]"
-                >
-                </q-input>
-                <q-input
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
-                  label="Diploma"
+                  label="Training or Seminar Name"
+                  maxlength="70"
+                  v-model="this.submit.create.training_or_seminar_name"
+                  lazy-rules
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || 'This field is required',
+                  ]"
+                >
+                </q-input>
+                <q-input
+                  class="marginLeftAndRight"
+                  type="text"
+                  label="Issued By"
                   maxlength="100"
-                  v-model="this.submit.create.diploma"
+                  v-model="this.submit.create.issued_by"
                   lazy-rules
                   :rules="[
                     (val) =>
@@ -143,56 +129,51 @@
                   ]"
                 >
                 </q-input>
-                <q-input
-                  style="margin: 10px"
-                  type="text"
-                  label="Institution Name"
-                  maxlength="60"
-                  v-model="this.submit.create.institution_name"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) || 'This field is required',
-                  ]"
-                >
-                </q-input>
-                <q-input
-                  style="margin: 10px"
-                  type="text"
-                  label="Institution Address"
-                  maxlength="50"
-                  v-model="this.submit.create.institution_address"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) || 'This field is required',
-                  ]"
-                >
-                </q-input>
-                <q-file
-                  accept=".jpg, .jpeg, .png, .pdf"
-                  clearable
-                  v-model="this.submit.create.attach_tor"
-                  label="Attach - TOR"
-                  counter
-                  lazy-rules
-                  @rejected="this.onRejected"
-                  :rules="[
-                    (val) => (val && val !== null) || 'This field is required',
-                  ]"
-                  max-file-size="5242880"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="attach_file" />
-                  </template>
+     
+                 <q-input
+                    class="marginLeftAndRight"
+                    type="date"
+                    label="From Date"
+                    v-model="this.submit.create.from_date"
+                    lazy-rules
+                    :rules="[
+                      (val) =>
+                        (val && val.length > 0) || 'This field is required',
+                    ]"
+                  >
+                  </q-input>
 
-                  <template v-slot:hint> (5MB maximum file size) </template>
-                </q-file>
+                <q-input
+                    class="marginLeftAndRight"
+                    type="date"
+                    label="To Date"
+                    v-model="this.submit.create.to_date"
+                    lazy-rules
+                    :rules="[
+                      (val) =>
+                        (val && val.length > 0) || 'This field is required',
+                    ]"
+                  >
+                  </q-input>
+
+                <q-input
+                  class="marginLeftAndRight"
+                  type="text"
+                  label="Place"
+                  maxlength="150"
+                  v-model="this.submit.create.place"
+                  lazy-rules
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || 'This field is required',
+                  ]"
+                >
+                </q-input>
                 <q-file
-                  accept=".jpg, .jpeg, .png, .pdf"
+                  accept=".pdf"
                   clearable
-                  v-model="this.submit.create.attach_diploma"
-                  label="Attach - Diploma"
+                  v-model="this.submit.create.attach_training_or_seminar_certificate"
+                  label="Attach - Training or Seminar Certificate"
                   counter
                   lazy-rules
                   @rejected="this.onRejected"
@@ -209,7 +190,6 @@
                 </q-file>
               </div>
             </div>
-            <br />
             <br />
 
             <div class="row" style="margin-bottom: 14px">
@@ -242,7 +222,7 @@
 import { defineComponent } from "vue";
 import helperMethods from "../helperMethods.js";
 import { UploadService } from "src/services/UploadService.js";
-import { EducationalBackgroundService } from "src/services/EducationalBackgroundService.js";
+import { TrainingOrSeminarService } from "src/services/TrainingOrSeminarService.js";
 // -------------------- Notify plugins --------------------
 import { useQuasar } from "quasar";
 let $q;
@@ -251,7 +231,7 @@ let $q;
 import { mapActions } from "vuex";
 
 export default defineComponent({
-  name: "EducationalBackgrounds",
+  name: "TrainingOrSeminar",
   data: function () {
     return {
       dialogCreate: false,
@@ -260,13 +240,12 @@ export default defineComponent({
           request_type: "create",
           employee_id:
             this.$store.state.users.user.personal_informations.employee_id,
-          from: null,
-          to: null,
-          diploma: null,
-          institution_name: null,
-          institution_address: null,
-          attach_tor: null,
-          attach_diploma: null,
+          training_or_seminar_name: null,
+          issued_by: null,
+          from_date: null,
+          to_date: null,
+          place: null,
+          attach_training_or_seminar_certificate: null,
         },
       },
     };
@@ -276,6 +255,11 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(["getUser"]),
+     formatted: function (columnValue) {
+        return helperMethods.convertToReadableFormatDate(
+          helperMethods.correctDate(columnValue)
+        ); 
+    },
     refresh: function () {
       helperMethods.refreshPage();
     },
@@ -284,13 +268,12 @@ export default defineComponent({
     },
     hideDialogCreate: function () {
       this.dialogCreate = false;
-      this.submit.create.from = null;
-      this.submit.create.to = null;
-      this.submit.create.diploma = null;
-      this.submit.create.institution_name = null;
-      this.submit.create.institution_address = null;
-      this.submit.create.attach_tor = null;
-      this.submit.create.attach_diploma = null;
+      this.submit.create.training_or_seminar_name = null;
+      this.submit.create.issued_by = null;
+      this.submit.create.from_date = null;
+      this.submit.create.to_date = null;
+      this.submit.create.place = null;
+      this.submit.create.attach_training_or_seminar_certificate = null;
     },
     onSubmit: async function (data) {
       try {
@@ -299,25 +282,23 @@ export default defineComponent({
         const obj = {
           request_type: data.request_type,
           employee_id: data.employee_id,
-          from: data.from,
-          to: data.to,
-          diploma: data.diploma,
-          institution_name: data.institution_name,
-          institution_address: data.institution_address,
-          attach_tor: data.attach_tor.name,
-          attach_diploma: data.attach_diploma.name,
+          training_or_seminar_name : data.training_or_seminar_name,
+          issued_by: data.issued_by,
+          from_date: data.from_date,
+          to_date: data.to_date,
+          place: data.place,
+          attach_training_or_seminar_certificate: data.attach_training_or_seminar_certificate.name,
         };
 
-        let response = await EducationalBackgroundService.createRequest(obj);
+        let response = await TrainingOrSeminarService.createRequest(obj);
 
-        if (data.attach_tor !== null && data.attach_diploma !== null) {
+        if (data.attach_training_or_seminar_certificate !== null) {
           const formData = new FormData();
           formData.append("request_id", response.data);
           formData.append("request_type", "create");
-          formData.append("attach_file", "tor_and_diploma");
+          formData.append("attach_file", "training_or_seminar_certificate");
           formData.append("employee_id", data.employee_id);
-          formData.append("tor", data.attach_tor);
-          formData.append("diploma", data.attach_diploma);
+          formData.append(data.training_or_seminar_name.trim(), data.attach_training_or_seminar_certificate);
           await UploadService.index(formData);
         }
 
@@ -326,7 +307,7 @@ export default defineComponent({
           type: "positive",
           message: "Sucessfully submitted.",
         });
-        return this.$router.push("/my-requests");
+        return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -336,9 +317,9 @@ export default defineComponent({
     },
     onRejected: function (rejectedFiles) {
       const errorsMap = {
-        accept: "(.jpg or .jpeg or .pdf or .png) file is only allowed.",
+        accept: "(.pdf) file is only allowed to upload.",
         "max-file-size":
-          "The file size exceeded 5MB. Please reduce the file resolution.",
+          "The file size exceeded 5MB. Please reduce the file size.",
       };
 
       rejectedFiles.forEach((rejectedFile) => {

@@ -153,9 +153,28 @@
                     >
                   </div>
                   <div
-                    v-else-if="
-                      props.row.column_name === 'ATTACHED TOR' ||
-                      props.row.column_name === 'ATTACHED DIPLOMA'
+                    v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                  >
+                    <a
+                      :href="
+                        this.url_birth_certificate +
+                        this.latest_selected_request_id +
+                        '&statusID=0&folder=value&fileName=' +
+                        props.row.value.trim()
+                      "
+                      target="_blank"
+                      style="color: #1681ec"
+                      >CLICK HERE</a
+                    >
+                  </div>
+                  <div
+                   v-else-if="
+                      (props.row.column_name === 'TOR' ||
+                      props.row.column_name === 'DIPLOMA')
+                      && (
+                      props.row.value === 'tor.pdf' ||
+                      props.row.value === 'diploma.pdf'
+                      )
                     "
                   >
                     <a
@@ -170,15 +189,14 @@
                       >CLICK HERE</a
                     >
                   </div>
-                  <div
-                    v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                   <div
+                    v-else-if="props.row.column_name === 'TRAINING OR SEMINAR CERTIFICATE'"
                   >
                     <a
                       :href="
-                        this.url_birth_certificate +
+                        this.url_training_or_seminar_certificate +
                         this.latest_selected_request_id +
-                        '&statusID=0&folder=value&fileName=' +
-                        props.row.value.trim()
+                       '&statusID=0&folder=value'
                       "
                       target="_blank"
                       style="color: #1681ec"
@@ -252,72 +270,14 @@
                     <div v-if="props.row.from === null">
                       <span style="color: red">NO PREVIOUS DATA</span>
                     </div>
-                    <div v-else-if="props.row.column_name === 'PRC ID'">
-                      <a
-                        :href="
-                          this.url_prc_id +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=from'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="
-                        props.row.column_name === 'MARRIAGE CERTIFICATE'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=from'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
                     <div v-else>
                       {{ props.row.from }}
                     </div>
                   </q-td>
 
                   <q-td key="to" :props="props" v-if="request_type === 'edit'">
-                    <div v-if="props.row.column_name === 'PRC ID'">
-                      <a
-                        :href="
-                          this.url_prc_id +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=' +
-                          (props.row.from === null ? 'value' : 'to')
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
                     <div
-                      v-else-if="
-                        props.row.column_name === 'MARRIAGE CERTIFICATE'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=' +
-                          (props.row.from === null ? 'value' : 'to')
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
                     >
                       <a
                         :href="
@@ -342,39 +302,7 @@
                     v-if="request_type === 'create'"
                   >
                     <div
-                      v-if="props.row.column_name === 'MARRIAGE CERTIFICATE'"
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=value'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="
-                        props.row.column_name === 'ATTACHED TOR' ||
-                        props.row.column_name === 'ATTACHED DIPLOMA'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_tor_or_diploma +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=value&document=' +
-                          props.row.column_name.trim().toLowerCase()
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
                     >
                       <a
                         :href="
@@ -611,9 +539,28 @@
                     >
                   </div>
                   <div
+                    v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                  >
+                    <a
+                      :href="
+                        this.url_birth_certificate +
+                        this.latest_selected_request_id +
+                        '&statusID=1&folder=value&fileName=' +
+                        props.row.value.trim()
+                      "
+                      target="_blank"
+                      style="color: #1681ec"
+                      >CLICK HERE</a
+                    >
+                  </div>
+                   <div
                     v-else-if="
-                      props.row.column_name === 'ATTACHED TOR' ||
-                      props.row.column_name === 'ATTACHED DIPLOMA'
+                      (props.row.column_name === 'TOR' ||
+                      props.row.column_name === 'DIPLOMA')
+                      && (
+                      props.row.value === 'tor.pdf' ||
+                      props.row.value === 'diploma.pdf'
+                      )
                     "
                   >
                     <a
@@ -628,15 +575,14 @@
                       >CLICK HERE</a
                     >
                   </div>
-                  <div
-                    v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                   <div
+                    v-else-if="props.row.column_name === 'TRAINING OR SEMINAR CERTIFICATE'"
                   >
                     <a
                       :href="
-                        this.url_birth_certificate +
+                        this.url_training_or_seminar_certificate +
                         this.latest_selected_request_id +
-                        '&statusID=1&folder=value&fileName=' +
-                        props.row.value.trim()
+                       '&statusID=1&folder=value'
                       "
                       target="_blank"
                       style="color: #1681ec"
@@ -694,72 +640,14 @@
                     <div v-if="props.row.from === null">
                       <span style="color: red">NO PREVIOUS DATA</span>
                     </div>
-                    <div v-else-if="props.row.column_name === 'PRC ID'">
-                      <a
-                        :href="
-                          this.url_prc_id +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=from'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="
-                        props.row.column_name === 'MARRIAGE CERTIFICATE'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=from'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
                     <div v-else>
                       {{ props.row.from }}
                     </div>
                   </q-td>
 
                   <q-td key="to" :props="props" v-if="request_type === 'edit'">
-                    <div v-if="props.row.column_name === 'PRC ID'">
-                      <a
-                        :href="
-                          this.url_prc_id +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=' +
-                          (props.row.from === null ? 'value' : 'to')
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
                     <div
-                      v-else-if="
-                        props.row.column_name === 'MARRIAGE CERTIFICATE'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=' +
-                          (props.row.from === null ? 'value' : 'to')
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
                     >
                       <a
                         :href="
@@ -784,39 +672,7 @@
                     v-if="request_type === 'create'"
                   >
                     <div
-                      v-if="props.row.column_name === 'MARRIAGE CERTIFICATE'"
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=value'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="
-                        props.row.column_name === 'ATTACHED TOR' ||
-                        props.row.column_name === 'ATTACHED DIPLOMA'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_tor_or_diploma +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=value&document=' +
-                          props.row.column_name.trim().toLowerCase()
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
                     >
                       <a
                         :href="
@@ -844,25 +700,45 @@
   </q-dialog>
   <!---------------------------------------------------------------- MY APPROVED DETAILS DIALOG ---------------------------------------------------------------->
 
-  <!---------------------------------------------------------------- PLEASE CHECK ALL DIALOG ---------------------------------------------------------------->
+  <!---------------------------------------------------------------- PLEASE CHECK ALL FIELDS DIALOG ---------------------------------------------------------------->
   <q-dialog
-    ref="dialogPleaseCheckAll"
-    @hide="this.$refs.dialogPleaseCheckAll.hide()"
+    ref="dialogPleaseCheckAllFields"
+    @hide="this.$refs.dialogPleaseCheckAllFields.hide()"
   >
     <q-card class="q-dialog-plugin">
       <div class="q-card__section q-card__section--vert q-dialog__message">
-        Please check all the fields and try again.
+        Please check all fields. This is required.
       </div>
       <q-card-actions align="right">
         <q-btn
           color="primary"
           label="OK"
-          @click="this.$refs.dialogPleaseCheckAll.hide()"
+          @click="this.$refs.dialogPleaseCheckAllFields.hide()"
         />
       </q-card-actions>
     </q-card>
   </q-dialog>
-  <!---------------------------------------------------------------- PLEASE CHECK ALL DIALOG ---------------------------------------------------------------->
+  <!---------------------------------------------------------------- PLEASE CHECK ALL FIELDS DIALOG ---------------------------------------------------------------->
+
+ <!---------------------------------------------------------------- PLEASE CHECK ALL FIELDS PER PERSON DIALOG ---------------------------------------------------------------->
+  <q-dialog
+    ref="dialogPleaseCheckAllFieldsPerPerson"
+    @hide="this.$refs.dialogPleaseCheckAllFieldsPerPerson.hide()"
+  >
+    <q-card class="q-dialog-plugin">
+      <div class="q-card__section q-card__section--vert q-dialog__message">
+        Please check all fields per person. This is required.
+      </div>
+      <q-card-actions align="right">
+        <q-btn
+          color="primary"
+          label="OK"
+          @click="this.$refs.dialogPleaseCheckAllFieldsPerPerson.hide()"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
+<!---------------------------------------------------------------- PLEASE CHECK ALL FIELDS PER PERSON DIALOG ---------------------------------------------------------------->
 
   <!---------------------------------------------------------------- APPROVE DIALOG FOR PENDING ---------------------------------------------------------------->
   <q-dialog ref="dialogApprove" @hide="this.hideApproveDialog()">
@@ -928,7 +804,7 @@
     <q-item-section avatar class="items-center" style="margin: 0 10px">
       <h4 class="text-center">
         <q-icon name="mail" />
-        Other Requests
+        Other Request
       </h4>
     </q-item-section>
 
@@ -976,7 +852,7 @@
               >
                 <div class="row">
                   <q-item-label
-                    >Minimum Date with Pending Request : {{ this.pending.minimum_date_with_pending_request }}
+                    >Pending Request : {{ this.pending.minimum_date_with_pending_request }}
                   </q-item-label>
                 </div>
                 <div class="row">
@@ -1018,6 +894,7 @@
                       id="btnSearch"
                       color="primary"
                       label="SEARCH"
+                      icon="search"
                       type="submit"
                     ></q-btn>
                   </div>
@@ -1048,6 +925,7 @@
                         props.row.request_id
                       )
                     "
+                     style="height: auto;"
                   >
                     <q-td key="requestID" :props="props">
                       #{{ props.row.request_id }}
@@ -1057,8 +935,8 @@
                       {{ props.row.stats }}
                     </q-td>
 
-                    <q-td key="requestedFields" :props="props">
-                      {{ props.row.requested_fields }}
+                    <q-td key="requestedFields" :props="props" style="white-space: normal;">
+                        {{ props.row.requested_fields }}
                     </q-td>
 
                     <q-td key="dateTimeCreated" :props="props">
@@ -1123,6 +1001,7 @@
                       id="btnSearch"
                       color="primary"
                       label="SEARCH"
+                      icon="search"
                       type="submit"
                     ></q-btn>
                   </div>
@@ -1157,6 +1036,7 @@
                         props.row.request_id
                       )
                     "
+                    style="height: auto;"
                   >
                     <q-td key="requestID" :props="props">
                       #{{ props.row.request_id }}
@@ -1166,8 +1046,8 @@
                       {{ props.row.stats }}
                     </q-td>
 
-                    <q-td key="requestedFields" :props="props">
-                      {{ props.row.requested_fields }}
+                   <q-td key="requestedFields" :props="props" style="white-space: normal;">
+                        {{ props.row.requested_fields }}
                     </q-td>
 
                     <q-td key="dateTimeCreated" :props="props">
@@ -1205,7 +1085,7 @@ import { defineComponent } from "vue";
 import { mapActions } from "vuex";
 
 export default defineComponent({
-  name: "OtherRequests",
+  name: "OtherRequest",
   mounted: function () {
     $q = useQuasar();
     let dateToday = helperMethods.getDateToday();
@@ -1248,6 +1128,11 @@ export default defineComponent({
         "/api/uploads/get-birth-certificate?token=" +
         this.$store.state.users.token +
         "&requestID=",
+      url_training_or_seminar_certificate:
+        process.env.BACKEND_REST_API_URL +
+        "/api/uploads/get-training-or-seminar-certificate?token=" +
+        this.$store.state.users.token +
+        "&requestID=",
       request_type: null,
       are_siblings_or_children: false,
       selected: [],
@@ -1256,8 +1141,8 @@ export default defineComponent({
       hr_remarks: null,
       tab: "pending",
       pending: {
-        minimum_date_with_pending_request : helperMethods.removeTime(helperMethods.correctDate(this.$store.state.users.user.other_requests.minimum_date_with_pending_request)),
-        search: {
+       minimum_date_with_pending_request : (this.$store.state.users.user.other_requests.minimum_date_with_pending_request === '1900-01-01') ? '' : helperMethods.removeTime(helperMethods.correctDate(this.$store.state.users.user.other_requests.minimum_date_with_pending_request)),
+       search: {
           date_from: null,
           date_to: null,
         },
@@ -1285,6 +1170,7 @@ export default defineComponent({
               label: "Requested Fields",
               align: "left",
               sortable: true,
+              style: 'max-width: 200px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;', 
               field: (row) => row.requested_fields,
             },
             {
@@ -1435,6 +1321,7 @@ export default defineComponent({
               label: "Requested Fields",
               align: "left",
               sortable: true,
+              style: 'max-width: 200px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;', 
               field: (row) => row.requested_fields,
             },
             {
@@ -1550,6 +1437,7 @@ export default defineComponent({
       ].details) {
         response.push(item);
       }
+
       this.pending.details.rows = response;
     },
     getMyApprovedDetails: function (requestID) {
@@ -1582,15 +1470,39 @@ export default defineComponent({
       return helperMethods.convertToReadableFormatDateTime(value);
     },
     showApproveDialog: function (employeeID) {
-      if (
-        this.request_type === "create" &&
-        this.selected.length !== this.pending.details.rows.length
-      ) {
-        this.$refs.dialogPleaseCheckAll.show();
-      } else {
+      // check if all fields is checked
+      if (this.request_type === "create" &&
+        this.selected.length !== this.pending.details.rows.length &&
+        this.are_siblings_or_children === false) 
+      {
+        this.$refs.dialogPleaseCheckAllFields.show();
+      } 
+      else if (this.request_type === "create" &&
+        this.are_siblings_or_children === true &&
+        this.isSelectedLengthRowsValid() === false
+        )
+      {
+       this.$refs.dialogPleaseCheckAllFieldsPerPerson.show();
+      }
+      else {
         helperMethods.createCookie("selected_employee_id", employeeID);
         this.$refs.dialogApprove.show();
       }
+    },
+    isSelectedLengthRowsValid: function (){
+
+    let totalRowsPerTable = this.pending.details.rows[0].table_rows.length;
+    let remainder = this.selected.length % totalRowsPerTable;
+
+    if(
+      (remainder === 0)
+      ){
+       return true;
+    }   
+    else{
+      return false;
+    } 
+
     },
     hideApproveDialog: function () {
       helperMethods.deleteCookie("selected_employee_id");

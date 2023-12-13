@@ -62,6 +62,18 @@
             ]"
           >
           </q-input>
+          <q-input
+            v-else-if="this.comply.view.field_name === 'MARRIAGE DATE'"
+            style="margin: 10px"
+            type="date"
+            label="Marriage Date"
+            v-model="comply.submit.value"
+            lazy-rules
+            :rules="[
+              (val) => (val && val.length > 0) || 'This field is required',
+            ]"
+          >
+          </q-input>
           <q-file
             v-else-if="this.comply.view.field_name === 'MARRIAGE CERTIFICATE'"
             style="margin: 10px 10px"
@@ -88,7 +100,7 @@
             accept=".pdf"
             clearable
             v-model="comply.submit.value"
-            :label="'Attach - Birth Certificate for ' + this.comply.file_name"
+            :label="(this.comply.file_name === undefined) ? 'Attach - Birth Certificate' : 'Attach - Birth Certificate for ' + this.comply.file_name"
             counter
             lazy-rules
             @rejected="this.onRejected"
@@ -123,7 +135,7 @@
             <template v-slot:hint> (5MB maximum file size) </template>
           </q-file>
           <q-file
-            v-else-if="this.comply.view.field_name === 'ATTACHED TOR'"
+            v-else-if="this.comply.view.field_name === 'TOR'"
             style="margin: 10px 10px"
             accept=".pdf"
             clearable
@@ -143,12 +155,32 @@
             <template v-slot:hint> (5MB maximum file size) </template>
           </q-file>
           <q-file
-            v-else-if="this.comply.view.field_name === 'ATTACHED DIPLOMA'"
+            v-else-if="this.comply.view.field_name === 'DIPLOMA'"
             style="margin: 10px 10px"
             accept=".pdf"
             clearable
             v-model="comply.submit.value"
             label="Attach - Diploma "
+            counter
+            lazy-rules
+            @rejected="this.onRejected"
+            :rules="[
+              (val) => (val && val !== null) || 'This field is required',
+            ]"
+            max-file-size="5242880"
+          >
+            <template v-slot:prepend>
+              <q-icon name="attach_file" />
+            </template>
+            <template v-slot:hint> (5MB maximum file size) </template>
+          </q-file>
+           <q-file
+            v-else-if="this.comply.view.field_name === 'TRAINING OR SEMINAR CERTIFICATE'"
+            style="margin: 10px 10px"
+            accept=".pdf"
+            clearable
+            v-model="comply.submit.value"
+           :label="(this.comply.file_name === undefined) ? 'Attach - Training or Seminar Certificate' : 'Attach - Training or Seminar Certificate for ' + this.comply.file_name"
             counter
             lazy-rules
             @rejected="this.onRejected"
@@ -339,9 +371,28 @@
                     >
                   </div>
                   <div
+                    v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                  >
+                    <a
+                      :href="
+                        this.url_birth_certificate +
+                        this.latest_selected_request_id +
+                        '&statusID=0&folder=value&fileName=' +
+                        props.row.value.trim()
+                      "
+                      target="_blank"
+                      style="color: #1681ec"
+                      >CLICK HERE</a
+                    >
+                  </div>
+                  <div
                     v-else-if="
-                      props.row.column_name === 'ATTACHED TOR' ||
-                      props.row.column_name === 'ATTACHED DIPLOMA'
+                      (props.row.column_name === 'TOR' ||
+                      props.row.column_name === 'DIPLOMA')
+                      && (
+                      props.row.value === 'tor.pdf' ||
+                      props.row.value === 'diploma.pdf'
+                      )
                     "
                   >
                     <a
@@ -357,14 +408,13 @@
                     >
                   </div>
                   <div
-                    v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                    v-else-if="props.row.column_name === 'TRAINING OR SEMINAR CERTIFICATE'"
                   >
                     <a
                       :href="
-                        this.url_birth_certificate +
+                        this.url_training_or_seminar_certificate +
                         this.latest_selected_request_id +
-                        '&statusID=0&folder=value&fileName=' +
-                        props.row.value.trim()
+                       '&statusID=0&folder=value'
                       "
                       target="_blank"
                       style="color: #1681ec"
@@ -409,7 +459,7 @@
                         this.showComplyDialog(
                           props.row.id,
                           props.row.column_name,
-                          ''
+                          props.row.column_name === 'TRAINING OR SEMINAR CERTIFICATE'? props.row.value.replaceAll('.pdf', '') : ''
                         )
                       "
                     ></q-btn>
@@ -464,72 +514,14 @@
                     <div v-if="props.row.from === null">
                       <span style="color: red">NO PREVIOUS DATA</span>
                     </div>
-                    <div v-else-if="props.row.column_name === 'PRC ID'">
-                      <a
-                        :href="
-                          this.url_prc_id +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=from'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="
-                        props.row.column_name === 'MARRIAGE CERTIFICATE'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=from'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
                     <div v-else>
                       {{ props.row.from }}
                     </div>
                   </q-td>
 
                   <q-td key="to" :props="props" v-if="request_type === 'edit'">
-                    <div v-if="props.row.column_name === 'PRC ID'">
-                      <a
-                        :href="
-                          this.url_prc_id +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=' +
-                          (props.row.from === null ? 'value' : 'to')
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
                     <div
-                      v-else-if="
-                        props.row.column_name === 'MARRIAGE CERTIFICATE'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=' +
-                          (props.row.from === null ? 'value' : 'to')
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
                     >
                       <a
                         :href="
@@ -554,39 +546,7 @@
                     v-if="request_type === 'create'"
                   >
                     <div
-                      v-if="props.row.column_name === 'MARRIAGE CERTIFICATE'"
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=value'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="
-                        props.row.column_name === 'ATTACHED TOR' ||
-                        props.row.column_name === 'ATTACHED DIPLOMA'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_tor_or_diploma +
-                          this.latest_selected_request_id +
-                          '&statusID=0&folder=value&document=' +
-                          props.row.column_name.trim().toLowerCase()
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
                     >
                       <a
                         :href="
@@ -638,7 +598,7 @@
                           this.showComplyDialog(
                             props.row.id,
                             props.row.column_name,
-                            item.sibling_or_child_full_name
+                            (item.sibling_or_child_full_name === undefined ? props.row.value.replace('.pdf', '') : item.sibling_or_child_full_name)
                           )
                         "
                       ></q-btn>
@@ -681,6 +641,10 @@
         />
       </q-card-actions>
       <div class="q-card__section q-card__section--vert q-dialog__message">
+        <span style="font-weight: bold">
+          Request ID : {{ this.latest_selected_request_id }}
+        </span>
+        <br />
         <span v-html="description"></span>
 
         <div v-if="are_siblings_or_children === false">
@@ -817,9 +781,28 @@
                     >
                   </div>
                   <div
+                    v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                  >
+                    <a
+                      :href="
+                        this.url_birth_certificate +
+                        this.latest_selected_request_id +
+                        '&statusID=1&folder=value&fileName=' +
+                        props.row.value.trim()
+                      "
+                      target="_blank"
+                      style="color: #1681ec"
+                      >CLICK HERE</a
+                    >
+                  </div>
+                  <div
                     v-else-if="
-                      props.row.column_name === 'ATTACHED TOR' ||
-                      props.row.column_name === 'ATTACHED DIPLOMA'
+                      (props.row.column_name === 'TOR' ||
+                      props.row.column_name === 'DIPLOMA')
+                      && (
+                      props.row.value === 'tor.pdf' ||
+                      props.row.value === 'diploma.pdf'
+                      )
                     "
                   >
                     <a
@@ -835,14 +818,13 @@
                     >
                   </div>
                   <div
-                    v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                    v-else-if="props.row.column_name === 'TRAINING OR SEMINAR CERTIFICATE'"
                   >
                     <a
                       :href="
-                        this.url_birth_certificate +
+                        this.url_training_or_seminar_certificate +
                         this.latest_selected_request_id +
-                        '&statusID=1&folder=value&fileName=' +
-                        props.row.value.trim()
+                       '&statusID=1&folder=value'
                       "
                       target="_blank"
                       style="color: #1681ec"
@@ -903,72 +885,14 @@
                     <div v-if="props.row.from === null">
                       <span style="color: red">NO PREVIOUS DATA</span>
                     </div>
-                    <div v-else-if="props.row.column_name === 'PRC ID'">
-                      <a
-                        :href="
-                          this.url_prc_id +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=from'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="
-                        props.row.column_name === 'MARRIAGE CERTIFICATE'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=from'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
                     <div v-else>
                       {{ props.row.from }}
                     </div>
                   </q-td>
 
                   <q-td key="to" :props="props" v-if="request_type === 'edit'">
-                    <div v-if="props.row.column_name === 'PRC ID'">
-                      <a
-                        :href="
-                          this.url_prc_id +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=' +
-                          (props.row.from === null ? 'value' : 'to')
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
                     <div
-                      v-else-if="
-                        props.row.column_name === 'MARRIAGE CERTIFICATE'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=' +
-                          (props.row.from === null ? 'value' : 'to')
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
                     >
                       <a
                         :href="
@@ -993,39 +917,7 @@
                     v-if="request_type === 'create'"
                   >
                     <div
-                      v-if="props.row.column_name === 'MARRIAGE CERTIFICATE'"
-                    >
-                      <a
-                        :href="
-                          this.url_marriage_certificate +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=value'
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="
-                        props.row.column_name === 'ATTACHED TOR' ||
-                        props.row.column_name === 'ATTACHED DIPLOMA'
-                      "
-                    >
-                      <a
-                        :href="
-                          this.url_tor_or_diploma +
-                          this.latest_selected_request_id +
-                          '&statusID=1&folder=value&document=' +
-                          props.row.column_name.trim().toLowerCase()
-                        "
-                        target="_blank"
-                        style="color: #1681ec"
-                        >CLICK HERE</a
-                      >
-                    </div>
-                    <div
-                      v-else-if="props.row.column_name === 'BIRTH CERTIFICATE'"
+                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
                     >
                       <a
                         :href="
@@ -1053,11 +945,12 @@
   </q-dialog>
   <!---------------------------------------------------------------- APPROVED DETAILS DIALOG ---------------------------------------------------------------->
 
+
   <q-pull-to-refresh @refresh="this.refresh()">
     <q-item-section avatar class="items-center" style="margin: 0 10px">
       <h4 class="text-center">
         <q-icon name="message" />
-        My Requests
+        My Request
       </h4>
     </q-item-section>
 
@@ -1106,7 +999,7 @@
               >
                <div class="row">
                   <q-item-label
-                    >Minimum Date with Pending Request : {{ this.pending.minimum_date_with_pending_request }}
+                    >Pending Request : {{ this.pending.minimum_date_with_pending_request }}
                   </q-item-label>
                 </div>
                 <div class="row">
@@ -1148,6 +1041,7 @@
                       id="btnSearch"
                       color="primary"
                       label="SEARCH"
+                      icon="search"
                       type="submit"
                     ></q-btn>
                   </div>
@@ -1176,7 +1070,8 @@
                         props.row.description,
                         props.row.request_id
                       )
-                    "
+                      "
+                     style="height: auto;"
                   >
                     <q-td key="requestID" :props="props">
                       #{{ props.row.request_id }}
@@ -1186,8 +1081,8 @@
                       {{ props.row.stats }}
                     </q-td>
 
-                    <q-td key="requestedFields" :props="props">
-                      {{ props.row.requested_fields }}
+                    <q-td key="requestedFields" :props="props" style="white-space: normal;">
+                        {{ props.row.requested_fields }}
                     </q-td>
 
                     <q-td key="dateTimeCreated" :props="props">
@@ -1249,6 +1144,7 @@
                       id="btnSearch"
                       color="primary"
                       label="SEARCH"
+                      icon="search"
                       type="submit"
                     ></q-btn>
                   </div>
@@ -1282,6 +1178,7 @@
                         props.row.request_id
                       )
                     "
+                    style="height: auto;"
                   >
                     <q-td key="requestID" :props="props">
                       #{{ props.row.request_id }}
@@ -1291,8 +1188,8 @@
                       {{ props.row.stats }}
                     </q-td>
 
-                    <q-td key="requestedFields" :props="props">
-                      {{ props.row.requested_fields }}
+                    <q-td key="requestedFields" :props="props" style="white-space: normal;">
+                        {{ props.row.requested_fields }}
                     </q-td>
 
                     <q-td key="dateTimeCreated" :props="props">
@@ -1331,7 +1228,7 @@ import { defineComponent } from "vue";
 import { mapActions } from "vuex";
 
 export default defineComponent({
-  name: "MyRequests",
+  name: "MyRequest",
   mounted: function () {
     $q = useQuasar();
     let dateToday = helperMethods.getDateToday();
@@ -1374,6 +1271,11 @@ export default defineComponent({
         "/api/uploads/get-birth-certificate?token=" +
         this.$store.state.users.token +
         "&requestID=",
+      url_training_or_seminar_certificate:
+        process.env.BACKEND_REST_API_URL +
+        "/api/uploads/get-training-or-seminar-certificate?token=" +
+        this.$store.state.users.token +
+        "&requestID=",
       request_type: null,
       are_siblings_or_children: false,
       latest_selected_request_id: 0,
@@ -1394,7 +1296,7 @@ export default defineComponent({
         },
       },
       pending: {
-        minimum_date_with_pending_request : helperMethods.removeTime(helperMethods.correctDate(this.$store.state.users.user.my_requests.minimum_date_with_pending_request)),
+        minimum_date_with_pending_request : (this.$store.state.users.user.my_requests.minimum_date_with_pending_request === '1900-01-01') ? '' : helperMethods.removeTime(helperMethods.correctDate(this.$store.state.users.user.my_requests.minimum_date_with_pending_request)),
         search: {
           date_from: null,
           date_to: null,
@@ -1423,6 +1325,7 @@ export default defineComponent({
               label: "Requested Fields",
               align: "left",
               sortable: true,
+              style: 'max-width: 200px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;', 
               field: (row) => row.requested_fields,
             },
             {
@@ -1579,6 +1482,7 @@ export default defineComponent({
               label: "Requested Fields",
               align: "left",
               sortable: true,
+              style: 'max-width: 200px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;', 
               field: (row) => row.requested_fields,
             },
             {
@@ -1796,9 +1700,9 @@ export default defineComponent({
     },
     onRejected: function (rejectedFiles) {
       const errorsMap = {
-        accept: "(.jpg or .jpeg or .pdf or .png) file is only allowed.",
+        accept: "(.pdf) file is only allowed to upload.",
         "max-file-size":
-          "The file size exceeded 5MB. Please reduce the file resolution.",
+          "The file size exceeded 5MB. Please reduce the file size.",
       };
 
       rejectedFiles.forEach((rejectedFile) => {
@@ -1832,16 +1736,21 @@ export default defineComponent({
           this.comply.view.field_name === "MARRIAGE CERTIFICATE" ||
           this.comply.view.field_name === "BIRTH CERTIFICATE" ||
           this.comply.view.field_name === "PRC ID" ||
-          this.comply.view.field_name === "ATTACHED DIPLOMA" ||
-          this.comply.view.field_name === "ATTACHED TOR"
+          this.comply.view.field_name === "DIPLOMA" ||
+          this.comply.view.field_name === "TOR" ||
+          this.comply.view.field_name === "TRAINING OR SEMINAR CERTIFICATE"
         ) {
           let attachFile = "";
 
-          if (this.comply.view.field_name === "MARRIAGE CERTIFICATE") {
-            attachFile = this.comply.view.field_name
-              .replace(" ", "_")
-              .toLowerCase();
-          } else if (this.comply.view.field_name === "BIRTH CERTIFICATE") {
+          if (this.comply.view.field_name === "MARRIAGE CERTIFICATE" ||
+              this.comply.view.field_name === "DIPLOMA" ||
+              this.comply.view.field_name === "TOR" 
+          ) {
+            attachFile = this.comply.view.field_name.replaceAll(" ", "_").toLowerCase();
+          } else if (
+            this.comply.view.field_name === "BIRTH CERTIFICATE" ||
+            this.comply.view.field_name === "TRAINING OR SEMINAR CERTIFICATE"
+            ) {
             attachFile = this.comply.file_name;
           } else if (this.comply.view.field_name === "PRC ID") {
             const arrayOfWords = this.description.split("license ");
@@ -1851,13 +1760,6 @@ export default defineComponent({
             if (match && match.length > 1) {
               attachFile = match[1];
             }
-          } else if (
-            this.comply.view.field_name === "ATTACHED DIPLOMA" ||
-            this.comply.view.field_name === "ATTACHED TOR"
-          ) {
-            attachFile = this.comply.view.field_name
-              .replace("ATTACHED ", "")
-              .toLowerCase();
           }
 
           const formData = new FormData();

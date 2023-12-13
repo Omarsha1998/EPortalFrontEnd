@@ -3,7 +3,7 @@
     <q-item-section avatar class="items-center" style="margin: 0 10px">
       <h4 class="text-center">
         <q-icon name="work" />
-        Work Experiences
+        Work Experience
       </h4>
     </q-item-section>
 
@@ -64,7 +64,7 @@ import { defineComponent } from "vue";
 import helperMethods from "../helperMethods.js";
 
 export default defineComponent({
-  name: "WorkExperiences",
+  name: "WorkExperience",
   methods: {
     refresh: function () {
       helperMethods.refreshPage();

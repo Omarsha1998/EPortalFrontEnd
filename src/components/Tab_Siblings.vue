@@ -86,7 +86,7 @@
               >
                 <q-input
                   v-if="property === 'full_name'"
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Full Name"
                   maxlength="80"
@@ -100,7 +100,7 @@
                 </q-input>
                 <q-input
                   v-else-if="property === 'birth_date'"
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="date"
                   label="Birth Date"
                   v-model="this.submit.edit.siblings[index].birth_date"
@@ -113,7 +113,7 @@
                 </q-input>
                 <q-input
                   v-else-if="property === 'occupation'"
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="Occupation"
                   maxlength="60"
@@ -127,7 +127,7 @@
                 </q-input>
                 <q-input
                   v-else-if="property === 'school_name_or_company_name'"
-                  style="margin: 10px"
+                  class="marginLeftAndRight"
                   type="text"
                   label="School Name or Company Name"
                   maxlength="150"
@@ -144,7 +144,6 @@
               </div>
             </div>
           </div>
-          <br />
           <br />
           <div class="footer">
             <div class="column example-row-equal-width">
@@ -225,7 +224,7 @@
           <div class="row bg-white">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Full Name"
                 maxlength="80"
@@ -237,7 +236,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="date"
                 label="Birth Date"
                 v-model="this.submit.model.birth_date"
@@ -248,7 +247,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="Occupation"
                 maxlength="60"
@@ -260,7 +259,7 @@
               >
               </q-input>
               <q-input
-                style="margin: 10px"
+                class="marginLeftAndRight"
                 type="text"
                 label="School Name or Company Name"
                 maxlength="150"
@@ -273,7 +272,7 @@
               </q-input>
             </div>
           </div>
-
+         <br />
           <div class="row" style="margin-bottom: 14px">
             <q-btn
               class="full-width"
@@ -468,7 +467,7 @@ export default {
           type: "positive",
           message: "Successfully submitted.",
         });
-        return this.$router.push("/my-requests");
+        return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -479,6 +478,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-</style>

@@ -3,7 +3,7 @@
     <q-item-section avatar class="items-center" style="margin: 0 10px;">
       <h4 class="text-center">
         <q-icon name="people" />
-        Family Backgrounds
+        Family Background
       </h4>
     </q-item-section>
 
@@ -156,7 +156,7 @@ import TabFatherInLaw from "../components/Tab_Father_In_Law.vue";
 import helperMethods from "../helperMethods.js";
 
 export default defineComponent({
-  name: "FamilyBackgrounds",
+  name: "FamilyBackground",
   components: {
     TabMother,
     TabFather,
@@ -184,7 +184,3 @@ export default defineComponent({
   },
 });
 </script>
-
-
-<style scoped>
-</style>
