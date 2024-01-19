@@ -7,7 +7,7 @@
       </h4>
     </q-item-section>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="formIsvisible === true">
       <div class="q-gutter-y-md">
         <q-card>
           <q-tabs
@@ -21,11 +21,7 @@
           >
             <q-tab
               name="view"
-              :label="
-                'TOTAL RECORDS (' +
-                this.$store.state.users.user.licenses.length +
-                ')'
-              "
+              :label="'TOTAL RECORDS (' + licenses.length + ')'"
             />
           </q-tabs>
 
@@ -128,24 +124,38 @@
 import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
+
+import { Cookies } from "quasar";
+
 import { defineComponent } from "vue";
 import helperMethods from "../helperMethods.js";
 
 export default defineComponent({
   name: "License",
+  computed: {
+    licensesState() {
+      return this.$store.getters["licenses_module/licenses"];
+    },
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+  },
   data: function () {
     return {
+      formIsvisible : false,
       tab: "view",
       licenses: [],
     };
   },
-  created: function () {
-    this.getLicenses();
+  created: async function () {
+    await this.getLicenses();
   },
   methods: {
-    getLicenses: function () {
+    getLicenses: async function () {
       try {
-        for (let item of this.$store.state.users.user.licenses) {
+        await this.$store.dispatch("licenses_module/get", this.employeeID);
+
+        for (let item of this.licensesState) {
           let value = {
             license_name: item.license_name,
             license_no: item.license_no,
@@ -164,6 +174,7 @@ export default defineComponent({
 
           this.licenses.push(value);
         }
+        this.formIsvisible = true;
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);

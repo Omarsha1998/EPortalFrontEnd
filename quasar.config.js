@@ -60,12 +60,11 @@ module.exports = configure(function (ctx) {
       // publicPath: '/',
       // analyze: true,
       env: {
-        APP_NAME: "UERM Personnel Information System",
+        APP_NAME: "UERM Employee Portal",
         APP_VERSION: "1.0",
-        BACKEND_REST_API_URL: "http://10.107.0.6:8082",
-        BACKEND_REST_API_TIMEOUT : 10000,
-        START_NOTIF_DAYS: 180,
-        HR_DEPARTMENT_ID : "5040",
+        BACKEND_REST_API_URL: "http://10.107.0.11:8082",
+        BACKEND_REST_API_TIMEOUT : 50000,
+        START_NOTIF_DAYS: 180
       },
       // rawDefine: {}
       // ignorePublicFolder: true,
@@ -104,7 +103,7 @@ module.exports = configure(function (ctx) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ["Notify", "Dialog", "LocalStorage"]
+      plugins: ["Notify", "Dialog", "LocalStorage", "Cookies", "Loading",]
     },
 
     // animations: 'all', // --- includes all animations

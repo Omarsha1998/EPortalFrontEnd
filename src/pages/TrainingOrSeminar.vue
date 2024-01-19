@@ -7,7 +7,7 @@
       </h4>
     </q-item-section>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="formIsvisible === true">
       <div class="q-gutter-y-md">
         <div class="row justify-center" style="margin-bottom: 20px">
           <q-btn
@@ -19,62 +19,59 @@
           ></q-btn>
         </div>
 
-        <h5
-          class="text-center"
-          v-if="
-            this.$store.state.users.user.trainings_or_seminars.length === 0
-          "
-        >
+        <h5 class="text-center" v-if="trainingsOrSeminars.length === 0">
           No Records found
         </h5>
 
-        <div
-          v-if="this.$store.state.users.user.trainings_or_seminars.length > 0"
-        >
+        <div v-if="trainingsOrSeminars.length > 0">
           <q-item-label
             class="text-center"
             style="margin-bottom: 15px; font-weight: bold"
             >TOTAL RECORDS : ({{
-              this.$store.state.users.user.trainings_or_seminars.length
+             trainingsOrSeminars.length
             }})</q-item-label
           >
           <div
             class="borderStyle"
-            v-for="trainingOrSeminar in this.$store.state.users.user
-              .trainings_or_seminars"
+            v-for="trainingOrSeminar in trainingsOrSeminars"
             :key="trainingOrSeminar.training_or_seminar_name"
           >
-            <div
-              v-for="(value, property) in trainingOrSeminar"
-              :key="property"
-            >
-             <div
-              class="row marginTopBottom20px"
-              v-if="value !== ''"
-            >
-              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                <q-item-label class="cardStyle">
-                  <span style="font-weight: bold">
-                    {{ property.replaceAll("_", " ").toUpperCase() }}
-                    :
-                  </span>
-                </q-item-label>
-              </div>
-              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                <q-item-label class="cardStyle">
-                  <span v-if="value !== '' && (property === 'attached_training_or_seminar_certificate')">
+            <div v-for="(value, property) in trainingOrSeminar" :key="property">
+              <div class="row marginTopBottom20px" v-if="value !== ''">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                  <q-item-label class="cardStyle">
+                    <span style="font-weight: bold">
+                      {{ property.replaceAll("_", " ").toUpperCase() }}
+                      :
+                    </span>
+                  </q-item-label>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                  <q-item-label class="cardStyle">
+                    <span
+                      v-if="
+                        value !== '' &&
+                        property === 'attached_training_or_seminar_certificate'
+                      "
+                    >
                       <a :href="value" target="_blank" style="color: #1681ec"
-                      >CLICK HERE</a>
-                  </span>
-                  <span v-else-if="value !== '' && (property === 'from_date' || property === 'to_date')">
-                     {{ formatted(value) }}
-                  </span>
-                   <span v-else>
-                   {{ value }}
-                  </span>
-                </q-item-label>
+                        >CLICK HERE</a
+                      >
+                    </span>
+                    <span
+                      v-else-if="
+                        value !== '' &&
+                        (property === 'from_date' || property === 'to_date')
+                      "
+                    >
+                      {{ formatted(value) }}
+                    </span>
+                    <span v-else>
+                      {{ value }}
+                    </span>
+                  </q-item-label>
+                </div>
               </div>
-                     </div>
             </div>
           </div>
         </div>
@@ -129,32 +126,32 @@
                   ]"
                 >
                 </q-input>
-     
-                 <q-input
-                    class="marginLeftAndRight"
-                    type="date"
-                    label="From Date"
-                    v-model="this.submit.create.from_date"
-                    lazy-rules
-                    :rules="[
-                      (val) =>
-                        (val && val.length > 0) || 'This field is required',
-                    ]"
-                  >
-                  </q-input>
 
                 <q-input
-                    class="marginLeftAndRight"
-                    type="date"
-                    label="To Date"
-                    v-model="this.submit.create.to_date"
-                    lazy-rules
-                    :rules="[
-                      (val) =>
-                        (val && val.length > 0) || 'This field is required',
-                    ]"
-                  >
-                  </q-input>
+                  class="marginLeftAndRight"
+                  type="date"
+                  label="From Date"
+                  v-model="this.submit.create.from_date"
+                  lazy-rules
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || 'This field is required',
+                  ]"
+                >
+                </q-input>
+
+                <q-input
+                  class="marginLeftAndRight"
+                  type="date"
+                  label="To Date"
+                  v-model="this.submit.create.to_date"
+                  lazy-rules
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || 'This field is required',
+                  ]"
+                >
+                </q-input>
 
                 <q-input
                   class="marginLeftAndRight"
@@ -172,7 +169,9 @@
                 <q-file
                   accept=".pdf"
                   clearable
-                  v-model="this.submit.create.attach_training_or_seminar_certificate"
+                  v-model="
+                    this.submit.create.attach_training_or_seminar_certificate
+                  "
                   label="Attach - Training or Seminar Certificate"
                   counter
                   lazy-rules
@@ -221,25 +220,32 @@
 <script>
 import { defineComponent } from "vue";
 import helperMethods from "../helperMethods.js";
-import { UploadService } from "src/services/UploadService.js";
-import { TrainingOrSeminarService } from "src/services/TrainingOrSeminarService.js";
+
 // -------------------- Notify plugins --------------------
 import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { mapActions } from "vuex";
-
 export default defineComponent({
   name: "TrainingOrSeminar",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    trainingsOrSeminars() {
+      return this.$store.getters[
+        "trainings_or_seminars_module/trainings_or_seminars"
+      ];
+    },
+  },
   data: function () {
     return {
+      formIsvisible: false,
       dialogCreate: false,
       submit: {
         create: {
           request_type: "create",
-          employee_id:
-            this.$store.state.users.user.personal_informations.employee_id,
+          employee_id: this.employeeID,
           training_or_seminar_name: null,
           issued_by: null,
           from_date: null,
@@ -253,12 +259,21 @@ export default defineComponent({
   mounted: function () {
     $q = useQuasar();
   },
+  created: async function () {
+    await this.getData();
+  },
   methods: {
-    ...mapActions(["getUser"]),
-     formatted: function (columnValue) {
-        return helperMethods.convertToReadableFormatDate(
-          helperMethods.correctDate(columnValue)
-        ); 
+    getData: async function () {
+      await this.$store.dispatch(
+        "trainings_or_seminars_module/get",
+        this.employeeID
+      );
+      this.formIsvisible = true;
+    },
+    formatted: function (columnValue) {
+      return helperMethods.convertToReadableFormatDate(
+        helperMethods.correctDate(columnValue)
+      );
     },
     refresh: function () {
       helperMethods.refreshPage();
@@ -281,16 +296,20 @@ export default defineComponent({
 
         const obj = {
           request_type: data.request_type,
-          employee_id: data.employee_id,
-          training_or_seminar_name : data.training_or_seminar_name,
+          employee_id: this.employeeID,
+          training_or_seminar_name: data.training_or_seminar_name,
           issued_by: data.issued_by,
           from_date: data.from_date,
           to_date: data.to_date,
           place: data.place,
-          attach_training_or_seminar_certificate: data.attach_training_or_seminar_certificate.name,
+          attach_training_or_seminar_certificate:
+            data.attach_training_or_seminar_certificate.name,
         };
 
-        let response = await TrainingOrSeminarService.createRequest(obj);
+        let response = await this.$store.dispatch(
+          "trainings_or_seminars_module/createRequest",
+          obj
+        );
 
         if (data.attach_training_or_seminar_certificate !== null) {
           const formData = new FormData();
@@ -298,11 +317,14 @@ export default defineComponent({
           formData.append("request_type", "create");
           formData.append("attach_file", "training_or_seminar_certificate");
           formData.append("employee_id", data.employee_id);
-          formData.append(data.training_or_seminar_name.trim(), data.attach_training_or_seminar_certificate);
-          await UploadService.index(formData);
+          formData.append(
+            data.training_or_seminar_name.trim(),
+            data.attach_training_or_seminar_certificate
+          );
+
+          await this.$store.dispatch("user_module/upload", formData);
         }
 
-        await this.getUser();
         $q.notify({
           type: "positive",
           message: "Sucessfully submitted.",

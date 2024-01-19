@@ -7,7 +7,7 @@
       </h4>
     </q-item-section>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="formIsvisible === true">
       <div class="q-gutter-y-md">
         <div class="row justify-center" style="margin-bottom: 20px">
           <q-btn
@@ -22,56 +22,66 @@
         <h5
           class="text-center"
           v-if="
-            this.$store.state.users.user.educational_backgrounds.length === 0
+            $store.getters[
+              'educational_backgrounds_module/educational_backgrounds'
+            ].length === 0
           "
         >
           No Records found
         </h5>
 
         <div
-          v-if="this.$store.state.users.user.educational_backgrounds.length > 0"
+          v-if="
+            $store.getters[
+              'educational_backgrounds_module/educational_backgrounds'
+            ].length > 0
+          "
         >
           <q-item-label
             class="text-center"
             style="margin-bottom: 15px; font-weight: bold"
             >TOTAL RECORDS : ({{
-              this.$store.state.users.user.educational_backgrounds.length
+              $store.getters[
+                "educational_backgrounds_module/educational_backgrounds"
+              ].length
             }})</q-item-label
           >
           <div
             class="borderStyle"
-            v-for="education in this.$store.state.users.user
-              .educational_backgrounds"
+            v-for="education in $store.getters[
+              'educational_backgrounds_module/educational_backgrounds'
+            ]"
             :key="education.diploma"
           >
-            <div
-              v-for="(value, property) in education"
-              :key="property"
-            >
-             <div
-              class="row marginTopBottom20px"
-              v-if="value !== ''"
-            >
-              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                <q-item-label class="cardStyle">
-                  <span style="font-weight: bold">
-                    {{ property.replaceAll("_", " ").toUpperCase() }}
-                    :
-                  </span>
-                </q-item-label>
-              </div>
-              <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                <q-item-label class="cardStyle">
-                  <span v-if="value !== '' && (property === 'attached_tor' || property === 'attached_diploma')">
+            <div v-for="(value, property) in education" :key="property">
+              <div class="row marginTopBottom20px" v-if="value !== ''">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                  <q-item-label class="cardStyle">
+                    <span style="font-weight: bold">
+                      {{ property.replaceAll("_", " ").toUpperCase() }}
+                      :
+                    </span>
+                  </q-item-label>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                  <q-item-label class="cardStyle">
+                    <span
+                      v-if="
+                        value !== '' &&
+                        (property === 'attached_tor' ||
+                          property === 'attached_diploma')
+                      "
+                    >
                       <a :href="value" target="_blank" style="color: #1681ec"
-                      >CLICK HERE</a>
-                  </span>
-                   <span v-else>
-                   {{ value }}
-                  </span>
-                </q-item-label>
+                        >CLICK HERE</a
+                      >
+                    </span>
+                    <span v-else>
+                      {{ value }}
+                    </span>
+                  </q-item-label>
+                </div>
               </div>
-                     </div>
             </div>
           </div>
         </div>
@@ -240,25 +250,27 @@
 <script>
 import { defineComponent } from "vue";
 import helperMethods from "../helperMethods.js";
-import { UploadService } from "src/services/UploadService.js";
-import { EducationalBackgroundService } from "src/services/EducationalBackgroundService.js";
+
 // -------------------- Notify plugins --------------------
 import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { mapActions } from "vuex";
-
 export default defineComponent({
   name: "EducationalBackground",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+  },
   data: function () {
     return {
+      formIsvisible: false,
       dialogCreate: false,
       submit: {
         create: {
           request_type: "create",
-          employee_id:
-            this.$store.state.users.user.personal_informations.employee_id,
+          employee_id: this.employeeID,
           from: null,
           to: null,
           diploma: null,
@@ -273,8 +285,17 @@ export default defineComponent({
   mounted: function () {
     $q = useQuasar();
   },
+  created: async function () {
+    await this.getData();
+  },
   methods: {
-    ...mapActions(["getUser"]),
+    getData: async function () {
+      await this.$store.dispatch(
+        "educational_backgrounds_module/get",
+        this.employeeID
+      );
+      this.formIsvisible = true;
+    },
     refresh: function () {
       helperMethods.refreshPage();
     },
@@ -297,7 +318,7 @@ export default defineComponent({
 
         const obj = {
           request_type: data.request_type,
-          employee_id: data.employee_id,
+          employee_id: this.employeeID,
           from: data.from,
           to: data.to,
           diploma: data.diploma,
@@ -307,7 +328,10 @@ export default defineComponent({
           attach_diploma: data.attach_diploma.name,
         };
 
-        let response = await EducationalBackgroundService.createRequest(obj);
+        let response = await this.$store.dispatch(
+          "educational_backgrounds_module/createRequest",
+          obj
+        );
 
         if (data.attach_tor !== null && data.attach_diploma !== null) {
           const formData = new FormData();
@@ -317,14 +341,15 @@ export default defineComponent({
           formData.append("employee_id", data.employee_id);
           formData.append("tor", data.attach_tor);
           formData.append("diploma", data.attach_diploma);
-          await UploadService.index(formData);
+
+          await this.$store.dispatch("user_module/upload", formData);
         }
 
-        await this.getUser();
         $q.notify({
           type: "positive",
           message: "Sucessfully submitted.",
         });
+
         return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;

@@ -37,10 +37,14 @@
                   <h6
                     class="text-center"
                     style="margin: 0 30px"
-                    v-else-if="view.remaining_days < 0 && this.submit.current_expiration_date !== '1900-01-01T00:00:00.000Z'"
+                    v-else-if="
+                      view.remaining_days < 0 &&
+                      this.submit.current_expiration_date !==
+                        '1900-01-01T00:00:00.000Z'
+                    "
                   >
                     This license is already expired. Please update it.
-                  </h6>     
+                  </h6>
 
                   <q-item-label
                     >License Name : {{ submit.license_name }}</q-item-label
@@ -49,15 +53,29 @@
                     >License No : {{ submit.license_no }}</q-item-label
                   >
 
-                  <q-item-label v-if="this.submit.current_expiration_date !== '1900-01-01T00:00:00.000Z'"
+                  <q-item-label
+                    v-if="
+                      this.submit.current_expiration_date !==
+                      '1900-01-01T00:00:00.000Z'
+                    "
                     >License Expiration Date :
                     {{ view.string_old_expiration_date }}</q-item-label
                   >
 
-                  <q-item-label v-if="this.submit.current_expiration_date !== '1900-01-01T00:00:00.000Z'"
-                    >PRC ID : <a :href="view.prc_id_url" target="_blank" style="color: #1681ec">CLICK HERE</a> </q-item-label
-                  >
-       
+                  <q-item-label
+                    v-if="
+                      this.submit.current_expiration_date !==
+                      '1900-01-01T00:00:00.000Z'
+                    "
+                    >PRC ID :
+                    <a
+                      :href="view.prc_id_url"
+                      target="_blank"
+                      style="color: #1681ec"
+                      >CLICK HERE</a
+                    >
+                  </q-item-label>
+
                   <q-input
                     type="date"
                     label="New Expiration Date of License"
@@ -126,15 +144,19 @@ let $q;
 
 import Logo from "../components/Logo.vue";
 import Title from "../components/Title.vue";
-
-import { LicenseService } from "../services/LicenseService.js";
-import { UploadService } from "src/services/UploadService.js";
+import { Cookies } from "quasar";
 import helperMethods from "../helperMethods.js";
-
-import { mapActions } from "vuex";
 
 export default {
   name: "UpdateLicenseExpirationDate",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    licenses() {
+      return this.$store.getters["licenses_module/licenses"];
+    },
+  },
   components: {
     Logo,
     Title,
@@ -147,8 +169,7 @@ export default {
         prc_id_url: null,
       },
       submit: {
-        employee_id:
-          this.$store.state.users.user.personal_informations.employee_id,
+        employee_id: this.employeeID,
         license_no: null,
         license_name: null,
         new_expiration_date: null,
@@ -164,7 +185,6 @@ export default {
     $q = useQuasar();
   },
   methods: {
-    ...mapActions(["getUser"]),
     onRejected: function (rejectedFiles) {
       const errorsMap = {
         accept: "(.pdf) file is only allowed to upload.",
@@ -200,11 +220,7 @@ export default {
         numberOfDays
       );
       if (newValue != undefined) {
-        helperMethods.createCookie(
-          "exposed_license_indexes",
-          newValue,
-          expires
-        );
+        helperMethods.createCookie("exposed_license_indexes", newValue, expires);
       }
     },
     setDetails: function () {
@@ -222,12 +238,9 @@ export default {
         this.createCookie(indexes);
       }
 
-      this.submit.license_name =
-        this.$store.state.users.user.licenses[index].license_name;
-      this.submit.license_no =
-        this.$store.state.users.user.licenses[index].license_no;
-      this.submit.current_expiration_date =
-        this.$store.state.users.user.licenses[index].expiration_date;
+      this.submit.license_name = this.licenses[index].license_name;
+      this.submit.license_no = this.licenses[index].license_no;
+      this.submit.current_expiration_date = this.licenses[index].expiration_date;
       this.view.remaining_days = helperMethods.daysBetweenTwoDates(
         this.submit.current_expiration_date,
         helperMethods.getDateToday()
@@ -238,35 +251,41 @@ export default {
           this.submit.current_expiration_date
         );
 
-      this.view.prc_id_url = this.$store.state.users.user.licenses[index].url;
-
+      this.view.prc_id_url = this.licenses[index].url;
     },
     onSubmit: async function (data) {
       try {
         document.getElementById("btnSubmit").disabled = true;
 
-         const obj = {
-         employee_id: data.employee_id,
-        license_no: data.license_no,
-        license_name: data.license_name,
-        new_expiration_date: data.new_expiration_date,
-        current_expiration_date: data.current_expiration_date,
-        attach_prc_id: data.attach_prc_id.name,
+        const obj = {
+          employee_id: this.employeeID,
+          license_no: data.license_no,
+          license_name: data.license_name,
+          new_expiration_date: data.new_expiration_date,
+          current_expiration_date: data.current_expiration_date,
+          attach_prc_id: data.attach_prc_id.name,
         };
 
-        let response = await LicenseService.createRequest(obj);
+        let response = await this.$store.dispatch(
+          "licenses_module/createRequest",
+          obj
+        );
 
         if (data.attach_prc_id !== null) {
           const formData = new FormData();
           formData.append("request_id", response.data);
-          formData.append("request_type", data.current_expiration_date === "1900-01-01T00:00:00.000Z" ? "create" : "edit");
+          formData.append(
+            "request_type",
+            data.current_expiration_date === "1900-01-01T00:00:00.000Z"
+              ? "create"
+              : "edit"
+          );
           formData.append("attach_file", "prc_id");
-          formData.append("employee_id", data.employee_id);
+          formData.append("employee_id",  this.employeeID);
           formData.append(this.submit.license_name.trim(), data.attach_prc_id);
-          await UploadService.index(formData);
+          await this.$store.dispatch("user_module/upload", formData);
         }
 
-        await this.getUser();
         helperMethods.createCookie("notify_message", "Successfully submitted.");
         helperMethods.createCookie("notify_type", "positive");
         this.redirect();

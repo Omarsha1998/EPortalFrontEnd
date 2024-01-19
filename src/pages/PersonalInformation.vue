@@ -1,6 +1,6 @@
 <template>
   <q-pull-to-refresh @refresh="this.refresh()">
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="this.formIsvisible === true">
       <q-item-section avatar class="items-center" style="margin: 0 10px">
         <h4 class="text-center">
           <q-icon name="info" />
@@ -297,9 +297,9 @@
               </div>
             </div>
             <br />
-            <br />        
-           <br />
-        
+            <br />
+            <br />
+
             <div class="footer">
               <div class="column example-row-equal-width">
                 <div class="row">
@@ -337,87 +337,149 @@ import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { mapActions } from "vuex";
-
 import helperMethods from "../helperMethods.js";
-import { PersonalInformationService } from "src/services/PersonalInformationService.js";
 
 export default {
   name: "PersonalInformation",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    personalInformations() {
+      return this.$store.getters[
+        "personal_informations_module/personal_informations"
+      ];
+    },
+  },
   mounted: function () {
     $q = useQuasar();
   },
+  created: async function () {
+    await this.getData();
+  },
   data: function () {
     return {
+      formIsvisible: false,
       dialog: false,
       view: {
-        employee_id:
-          this.$store.state.users.user.personal_informations.employee_id,
-        last_name: this.$store.state.users.user.personal_informations.last_name,
-        first_name:
-          this.$store.state.users.user.personal_informations.first_name,
-        middle_name:
-          this.$store.state.users.user.personal_informations.middle_name,
-        extension_name:
-          this.$store.state.users.user.personal_informations.extension_name,
-        nick_name: this.$store.state.users.user.personal_informations.nick_name,
-        full_name: this.$store.state.users.user.personal_informations.full_name,
-        gender: this.$store.state.users.user.personal_informations.gender,
-        personal_email:
-          this.$store.state.users.user.personal_informations.personal_email,
-        mobile_no: this.$store.state.users.user.personal_informations.mobile_no,
-        telephone_no:
-          this.$store.state.users.user.personal_informations.telephone_no,
-        address: this.$store.state.users.user.personal_informations.address,
-        birth_date:
-          this.$store.state.users.user.personal_informations.birth_date,
-        age: this.$store.state.users.user.personal_informations.age,
-        height: this.$store.state.users.user.personal_informations.height,
-        weight: this.$store.state.users.user.personal_informations.weight,
-        place_of_birth:
-          this.$store.state.users.user.personal_informations.place_of_birth,
-        citizenship:
-          this.$store.state.users.user.personal_informations.citizenship,
-        civil_status:
-          this.$store.state.users.user.personal_informations.civil_status,
-        religion: this.$store.state.users.user.personal_informations.religion,
-        tin: this.$store.state.users.user.personal_informations.tin,
-        phil_health:
-          this.$store.state.users.user.personal_informations.phil_health,
-        pagibig_no:
-          this.$store.state.users.user.personal_informations.pagibig_no,
-        sss_no: this.$store.state.users.user.personal_informations.sss_no,
-        atm_no: this.$store.state.users.user.personal_informations.atm_no,
-        uerm_email:
-          this.$store.state.users.user.personal_informations.uerm_email,
-        department_name:
-          this.$store.state.users.user.personal_informations.department_name,
-        job_position:
-          this.$store.state.users.user.personal_informations.job_position,
-        hired_date:
-          this.$store.state.users.user.personal_informations.hired_date,
-        regularized_date:
-          this.$store.state.users.user.personal_informations.regularized_date,
-        contact_person_name:
-          this.$store.state.users.user.personal_informations
-            .contact_person_name,
-        contact_person_address:
-          this.$store.state.users.user.personal_informations
-            .contact_person_address,
-        contact_person_contact_no:
-          this.$store.state.users.user.personal_informations
-            .contact_person_contact_no,
-        date_time_updated: helperMethods.convertToReadableFormatDateTime(
-          this.$store.state.users.user.personal_informations.date_time_updated
-        ),
+        employee_id: null,
+        last_name: null,
+        first_name: null,
+        middle_name: null,
+        extension_name: null,
+        nick_name: null,
+        full_name: null,
+        gender: null,
+        personal_email: null,
+        mobile_no: null,
+        telephone_no: null,
+        address: null,
+        birth_date: null,
+        age: null,
+        height: null,
+        weight: null,
+        place_of_birth: null,
+        citizenship: null,
+        civil_status: null,
+        religion: null,
+        tin: null,
+        phil_health: null,
+        pagibig_no: null,
+        sss_no: null,
+        atm_no: null,
+        uerm_email: null,
+        department_name: null,
+        job_position: null,
+        hired_date: null,
+        regularized_date: null,
+        contact_person_name: null,
+        contact_person_address: null,
+        contact_person_contact_no: null,
+        date_time_updated: null,
       },
-      edit: this.getEditDefaultValues(),
+      edit: null,
     };
   },
   methods: {
-    ...mapActions(["getUser"]),
+    getData: async function () {
+      await this.$store.dispatch(
+        "personal_informations_module/get",
+        this.employeeID
+      );
+
+      this.view.employee_id = this.employeeID;
+      this.view.last_name =
+        this.personalInformations.last_name;
+      this.view.first_name =
+        this.personalInformations.first_name;
+      this.view.middle_name =
+        this.personalInformations.middle_name;
+      this.view.extension_name =
+        this.personalInformations.extension_name;
+      this.view.nick_name =
+        this.personalInformations.nick_name;
+      this.view.full_name =
+        this.personalInformations.full_name;
+      this.view.gender =
+        this.personalInformations.gender;
+      this.view.personal_email =
+        this.personalInformations.personal_email;
+      this.view.mobile_no =
+        this.personalInformations.mobile_no;
+      this.view.telephone_no =
+        this.personalInformations.telephone_no;
+      this.view.address =
+        this.personalInformations.address;
+      this.view.birth_date =
+        this.personalInformations.birth_date;
+      this.view.age =
+        this.personalInformations.age;
+      this.view.height =
+        this.personalInformations.height;
+      this.view.weight =
+        this.personalInformations.weight;
+      this.view.place_of_birth =
+        this.personalInformations.place_of_birth;
+      this.view.citizenship =
+        this.personalInformations.citizenship;
+      this.view.civil_status =
+        this.personalInformations.civil_status;
+      this.view.religion =
+        this.personalInformations.religion;
+      this.view.tin =
+        this.personalInformations.tin;
+      this.view.phil_health =
+        this.personalInformations.phil_health;
+      this.view.pagibig_no =
+        this.personalInformations.pagibig_no;
+      this.view.sss_no =
+        this.personalInformations.sss_no;
+      this.view.atm_no =
+        this.personalInformations.atm_no;
+      this.view.uerm_email =
+        this.personalInformations.uerm_email;
+      this.view.department_name =
+        this.personalInformations.department_name;
+      this.view.job_position =
+        this.personalInformations.job_position;
+      this.view.hired_date =
+        this.personalInformations.hired_date;
+      this.view.regularized_date =
+        this.personalInformations.regularized_date;
+      this.view.contact_person_name =
+        this.personalInformations.contact_person_name;
+      this.view.contact_person_address =
+        this.personalInformations.contact_person_address;
+      this.view.contact_person_contact_no =
+        this.personalInformations.contact_person_contact_no;
+      this.view.date_time_updated =
+        this.personalInformations.date_time_updated;
+
+      this.formIsvisible = true;
+    },
     showDialog: async function () {
       this.dialog = true;
+      this.edit = this.getEditDefaultValues();
       this.edit.options.religion = await this.getAllReligions();
       this.edit.options.civil_status = await this.getAllCivilStatuses();
     },
@@ -428,39 +490,54 @@ export default {
     getEditDefaultValues: function () {
       const response = {
         submit: {
-          employee_id:
-            this.$store.state.users.user.personal_informations.employee_id,
+          employee_id: this.employeeID,
           last_name:
-            this.$store.state.users.user.personal_informations.last_name,
+            this.personalInformations
+              .last_name,
           first_name:
-            this.$store.state.users.user.personal_informations.first_name,
+            this.personalInformations
+              .first_name,
           middle_name:
-            this.$store.state.users.user.personal_informations.middle_name,
+            this.personalInformations
+              .middle_name,
           extension_name:
-            this.$store.state.users.user.personal_informations.extension_name,
+            this.personalInformations
+              .extension_name,
           nick_name:
-            this.$store.state.users.user.personal_informations.nick_name,
+            this.personalInformations
+              .nick_name,
           personal_email:
-            this.$store.state.users.user.personal_informations.personal_email,
+            this.personalInformations
+              .personal_email,
           mobile_no:
-            this.$store.state.users.user.personal_informations.mobile_no,
+            this.personalInformations
+              .mobile_no,
           telephone_no:
-            this.$store.state.users.user.personal_informations.telephone_no,
-          height: this.$store.state.users.user.personal_informations.height,
-          weight: this.$store.state.users.user.personal_informations.weight,
-          address: this.$store.state.users.user.personal_informations.address,
+            this.personalInformations
+              .telephone_no,
+          height:
+            this.personalInformations
+              .height,
+          weight:
+            this.personalInformations
+              .weight,
+          address:
+            this.personalInformations
+              .address,
           civil_status_id:
-            this.$store.state.users.user.personal_informations.civil_status_id,
+            this.personalInformations
+              .civil_status_id,
           religion_id:
-            this.$store.state.users.user.personal_informations.religion_id,
+            this.personalInformations
+              .religion_id,
           contact_person_name:
-            this.$store.state.users.user.personal_informations
+            this.personalInformations
               .contact_person_name,
           contact_person_address:
-            this.$store.state.users.user.personal_informations
+            this.personalInformations
               .contact_person_address,
           contact_person_contact_no:
-            this.$store.state.users.user.personal_informations
+            this.personalInformations
               .contact_person_contact_no,
         },
         options: {
@@ -471,14 +548,11 @@ export default {
       return response;
     },
     formatted: function (columnName, columnValue) {
-      if (columnName === "birth_date") {
+      if (columnName === "birth_date" || columnName === "date_time_updated") {
         return helperMethods.convertToReadableFormatDate(columnValue);
-      } else if (
-        columnName === "regularized_date" &&
-        columnValue === "1900-01-01"
-      )
+      } else if (columnValue === "1900-01-01") {
         return "";
-      else {
+      } else {
         return columnValue;
       }
     },
@@ -490,15 +564,17 @@ export default {
     onSubmit: async function () {
       try {
         document.getElementById("btnSubmit").disabled = true;
-        let response = await PersonalInformationService.createRequest(
+
+        let response = await this.$store.dispatch(
+          "personal_informations_module/createRequest",
           this.edit.submit
         );
 
-        await this.getUser();
         $q.notify({
           type: "positive",
           message: response.data,
         });
+
         return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;
@@ -509,7 +585,9 @@ export default {
     },
     getAllReligions: async function () {
       try {
-        let response = await PersonalInformationService.getAllReligions();
+        let response = await this.$store.dispatch(
+          "personal_informations_module/getAllReligions"
+        );
         return response.data;
       } catch (error) {
         let withRefresh = false;
@@ -519,7 +597,9 @@ export default {
     },
     getAllCivilStatuses: async function () {
       try {
-        let response = await PersonalInformationService.getAllCivilStatuses();
+        let response = await this.$store.dispatch(
+          "personal_informations_module/getAllCivilStatuses"
+        );
         return response.data;
       } catch (error) {
         let withRefresh = false;

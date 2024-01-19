@@ -272,10 +272,16 @@
 <script>
 import { defineComponent } from "vue";
 import helperMethods from "../helperMethods.js";
-import { AttachmentArchiveService } from "src/services/AttachmentArchiveService.js";
+// -------------------- Notify plugins --------------------
+import { useQuasar } from "quasar";
+let $q;
+// -------------------- Notify plugins --------------------
 
 export default defineComponent({
   name: "AttachmentArchive",
+  mounted: function () {
+    $q = useQuasar();
+  },
   data() {
     return {
       options: {
@@ -344,7 +350,10 @@ export default defineComponent({
   methods: {
     getAllDepartments: async function () {
       try {
-        let response = await AttachmentArchiveService.getAllDepartments();
+        let response = await this.$store.dispatch(
+          "attachment_archive_module/getAllDepartments"
+        );
+
         this.options.departments = response.data;
         if (this.options.departments && this.options.departments.length > 0) {
           this.options.department_id =
@@ -362,11 +371,22 @@ export default defineComponent({
       try {
         document.getElementById("btnSearch").disabled = true;
         this.search.department_id = this.options.department_id;
-        let response = await AttachmentArchiveService.searchEmployee(
-          this.search.department_id,
-          this.search.employee_id_or_employee_name
+
+        let response = await this.$store.dispatch(
+          "attachment_archive_module/searchEmployee",
+          {
+            departmentID: this.search.department_id,
+            employeeIDOrEmployeeName: this.search.employee_id_or_employee_name,
+          }
         );
+
         this.table.rows = response.data;
+        if (this.table.rows.length === 0) {
+          $q.notify({
+            type: "positive",
+            message: "No records found",
+          });
+        }
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -378,9 +398,12 @@ export default defineComponent({
       try {
         this.latest_selected_employee.employee_id = employeeID;
         this.latest_selected_employee.employee_full_name = employeeFullName;
-        let response = await AttachmentArchiveService.getEmployeeAttachments(
+
+        let response = await this.$store.dispatch(
+          "attachment_archive_module/getEmployeeAttachments",
           employeeID
         );
+
         this.latest_selected_employee.attachment_archive = response.data;
         console.log(this.latest_selected_employee.attachment_archive);
         this.$refs.dialog.show();

@@ -10,22 +10,6 @@ function setPageTitle(title) {
   document.title = title;
 }
 
-function createCookie(cookieName, value, expires = "") {
-  const semiColon = ";";
-  const equal = "=";
-  let expiration = expires === "" ? "" : "expires=" + expires + semiColon;
-  document.cookie = cookieName + equal + value + semiColon + expiration + "path=/" + semiColon;
-}
-
-function deleteCookie(cookieName) {
-  document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-}
-
-function getCookie(cookieName) {
-  var match = document.cookie.match(new RegExp('(^| )' + cookieName + '=([^;]+)'));
-  if (match) return match[2];
-}
-
 function getDateTimeToday() {
   var currentDateTime = new Date();
   return currentDateTime;
@@ -123,6 +107,10 @@ function toNumber(stringVariable) {
   return Number(stringVariable);
 }
 
+function delay(ms) {
+  return new Promise((res) => setTimeout(() => res(), ms))
+}
+
 function getDateRangeSearch(dateRangeSearch = null) {
     let dateToday = getDateToday();
     let dateTodayMinus7Days = getDateMinusDays(7);
@@ -137,16 +125,7 @@ function getDateRangeSearch(dateRangeSearch = null) {
           date_to: dateRangeSearch === null ? dateToday : dateRangeSearch.other_requests.my_approved.date_to,
         },
       },
-      my_requests: {
-        pending: {
-          date_from: dateRangeSearch === null ? dateTodayMinus7Days : dateRangeSearch.my_requests.pending.date_from,
-          date_to: dateRangeSearch === null ? dateToday : dateRangeSearch.my_requests.pending.date_to,
-        },
-        approved: {
-          date_from: dateRangeSearch === null ? dateTodayMinus7Days : dateRangeSearch.my_requests.approved.date_from,
-          date_to: dateRangeSearch === null ? dateToday : dateRangeSearch.my_requests.approved.date_to,
-        },
-      },
+
     };
     return response;
 }
@@ -175,29 +154,28 @@ function showErrorMessage(error, withRefresh = true) {
 
 }
 
-function pushNotification() {
-  Notification.requestPermission().then((p) => {
-    if (p === "granted") {
-      const notification = new Notification("Example Notification", {
-        body: "This is more text",
-        data: { hello: "world" },
-        icon: "../app-logo.png",
-      });
+function createCookie(cookieName, value, expires = "") {
+  const semiColon = ";";
+  const equal = "=";
+  let expiration = expires === "" ? "" : "expires=" + expires + semiColon;
+  document.cookie = cookieName + equal + value + semiColon + expiration + "path=/" + semiColon;
+}
 
-      notification.addEventListener("error", (e) => {
-        alert("error");
-      });
-    }
-  });
+function getCookie(cookieName) {
+  var match = document.cookie.match(new RegExp('(^| )' + cookieName + '=([^;]+)'));
+  if (match) return match[2];
+}
+
+function deleteCookie(cookieName) {
+  document.cookie = cookieName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 
 
+
 export default {
+  delay,
   getDateTimeToday,
   addDays,
-  createCookie,
-  deleteCookie,
-  getCookie,
   toNumber,
   refreshPage,
   redirect,
@@ -210,5 +188,8 @@ export default {
   convertToReadableFormatDateTime,
   correctDate,
   showErrorMessage,
-  getDateRangeSearch
+  getDateRangeSearch,
+  getCookie,
+  createCookie,
+  deleteCookie
 }

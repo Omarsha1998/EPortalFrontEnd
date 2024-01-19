@@ -2,6 +2,7 @@ import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import helperMethods from "../helperMethods.js";
 import Store from "../store/index.js"
+import { Cookies } from 'quasar';
 
 /*
  * If not building with SSR mode, you can
@@ -26,9 +27,18 @@ export default route(function (/* { store, ssrContext } */) {
     routes: [
       {
         path: '/',
-        redirect: '/other-request',
+        redirect: '/home',
         component: () => import('layouts/MainLayout.vue'),
         children: [
+          {
+            path: '/home',
+            name: '/Home',
+            meta: {
+              title: "Home",
+              requiresAuth: true,
+            },
+            component: () => import('src/pages/Home.vue')
+          },
           {
             path: '/other-request',
             name: '/OtherRequest',
@@ -110,6 +120,22 @@ export default route(function (/* { store, ssrContext } */) {
             },
             component: () => import('src/pages/License.vue')
           },
+          {
+            path: '/Leave',
+            meta: {
+              title: "My Leaves",
+              requiresAuth: true,
+            },
+            children: [{ path: '', component: () => import('src/pages/LeaveDetails.vue') }],
+          },
+          {
+            path: '/LeaveOperation',
+            meta: {
+              title: "Leave Approval",
+              requiresAuth: true,
+            },
+            children: [{ path: '', component: () => import('src/pages/LeaveOperation.vue') }],
+          },
         ]
       },
       {
@@ -144,22 +170,23 @@ export default route(function (/* { store, ssrContext } */) {
   Router.beforeEach(async (to, from, next) => {
     helperMethods.setPageTitle(to.meta.title + " - " + process.env.APP_NAME);
     let tofullPathLowerCase = to.fullPath.toLowerCase();
-    // #region Validation_UserToken
-    if (Store.state.users.token === null) {
-      // actions
-      await Store.dispatch('getToken');
+
+
+    if (helperMethods.getCookie('token') !== undefined && Store.getters['user_module/has_all_values'] === false) {
+      let token = helperMethods.getCookie('token');
+      await Store.dispatch('user_module/setNewValues', token);
     }
-    if (Store.state.users.user === null && Store.state.users.token !== null) {
-      // actions
-      await Store.dispatch('getUser');
-    }
-    // #endregion
+
     if (to.matched.some(record => record.meta.requiresAuth) === true) {
 
-      isNotAuthenticated(next);
+      // #region isNotAuthenticated
+      if (Store.getters['user_module/has_all_values'] === false) {
+        return next('/account/login');
+      }
+      // #endregion
 
       // #region Validation_IsNotLicensed
-      if (Store.state.users.user.licenses.length === 0
+      if (Store.getters['user_module/is_license'] === false
         &&
         (
           tofullPathLowerCase.includes("/license") === true ||
@@ -171,15 +198,20 @@ export default route(function (/* { store, ssrContext } */) {
       // #endregion
 
       // #region Validation_IsLicensed
-      if (Store.state.users.user.licenses.length > 0) {
-        for (var index = 0; index < Store.state.users.user.licenses.length; ++index) {
+      if (Store.getters['user_module/is_license'] === true) {
 
-          let totalDays = helperMethods.daysBetweenTwoDates(Store.state.users.user.licenses[index].expiration_date, helperMethods.getDateToday());
+        if (Store.getters['licenses_module/licenses'] === null) {
+          await Store.dispatch('licenses_module/get', Store.getters['user_module/employee_id']);
+        }
+
+        for (var index = 0; index < Store.getters['licenses_module/licenses'].length; ++index) {
+
+          let totalDays = helperMethods.daysBetweenTwoDates(Store.getters['licenses_module/licenses'][index].expiration_date, helperMethods.getDateToday());
           if (totalDays <= process.env.START_NOTIF_DAYS
             &&
             tofullPathLowerCase.includes("update-license-expiration-date") === false
             &&
-            helperMethods.getCookie("not_exposed_notification_index") === undefined
+            (helperMethods.getCookie("not_exposed_notification_index") === undefined)
           ) {
 
             if (helperMethods.getCookie("exposed_license_indexes") === undefined) {
@@ -208,24 +240,32 @@ export default route(function (/* { store, ssrContext } */) {
         &&
         tofullPathLowerCase.includes("update-license-expiration-date") === true
       ) {
-        return next(from);
+       return next(from);
       }
 
-      isNotAuthenticated(next);
-
       // #region Validation_IsNotHREmployee
-      if (Store.state.users.user.personal_informations.department_id !== process.env.HR_DEPARTMENT_ID
+      if (Store.getters['user_module/is_hr'] === false
         &&
         (tofullPathLowerCase.includes("/other-request") === true ||
-        tofullPathLowerCase.includes("/attachment-archive") === true
+          tofullPathLowerCase.includes("/attachment-archive") === true
         )
       ) {
         return next('/my-request');
       }
       // #endregion
 
+          // #region Validation_IsNotApproverEmployee
+        if (Store.getters['user_module/getIsAdmin'] === false
+          &&
+          (tofullPathLowerCase.includes("leaveoperation") === true)
+        ) {
+          return next('/home');
+        }
+        // #endregion
+
+
       // #region Validation_IsUserDontHavePreviousWorkExperiences
-      if (Store.state.users.user.work_experiences.length === 0
+      if (Store.getters['user_module/has_work_experience'] === false
         &&
         tofullPathLowerCase.includes("/work-experience") === true
       ) {
@@ -236,19 +276,13 @@ export default route(function (/* { store, ssrContext } */) {
       return next();
     } else {
       // #region Validation_IsAuthenticated
-      if (Store.getters.authenticated === true && tofullPathLowerCase.includes("/account/login") === true) {
+      if (Store.getters['user_module/has_all_values'] === true && tofullPathLowerCase.includes("/account/login") === true) {
         return next(from);
       }
       // #endregion
       return next();
     }
   });
-
-  function isNotAuthenticated(next) {
-    if (Store.getters.authenticated === false) {
-      return next('/account/login');
-    }
-  }
 
   return Router
 })

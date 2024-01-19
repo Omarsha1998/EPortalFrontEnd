@@ -1,10 +1,6 @@
 <template>
   <!---------------------------------------------------------------------- CREATE ---------------------------------------------------------------------->
-  <q-card
-    v-if="
-      this.$store.state.users.user.family_backgrounds.spouse.full_name === ''
-    "
-  >
+  <q-card v-if="familyBackgrounds.spouse.full_name === ''">
     <q-tabs
       v-model="this.default.createTab"
       dense
@@ -102,7 +98,7 @@
               </q-input>
             </div>
           </div>
-                   <br />
+          <br />
           <div class="row" style="margin-top: 13px">
             <q-btn
               id="btnSubmit"
@@ -119,11 +115,7 @@
   <!---------------------------------------------------------------------- CREATE ---------------------------------------------------------------------->
 
   <!---------------------------------------------------------------------- VIEW ---------------------------------------------------------------------->
-  <div
-    v-if="
-      this.$store.state.users.user.family_backgrounds.spouse.full_name !== ''
-    "
-  >
+  <div v-if="familyBackgrounds.spouse.full_name !== ''">
     <div class="row justify-center" style="margin-bottom: 12px">
       <q-btn
         color="primary"
@@ -137,8 +129,7 @@
     <div class="borderStyle">
       <div
         class="row bg-white"
-        v-for="(value, property) in this.$store.state.users.user
-          .family_backgrounds.spouse"
+        v-for="(value, property) in familyBackgrounds.spouse"
         :key="property"
       >
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
@@ -256,10 +247,7 @@
 
             <div
               class="col-lg-6 col-md-12 col-sm-12 col-12"
-              v-if="
-                this.$store.state.users.user.family_backgrounds.spouse
-                  .marriage_certificate === ''
-              "
+              v-if="familyBackgrounds.spouse.marriage_certificate === ''"
             >
               <q-file
                 accept=".pdf"
@@ -328,12 +316,19 @@ import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { mapActions } from "vuex";
-import { FamilyBackgroundService } from "src/services/FamilyBackgroundService.js";
-import { UploadService } from "src/services/UploadService.js";
 import helperMethods from "src/helperMethods";
 export default {
   name: "Tab_Spouse",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    familyBackgrounds() {
+      return this.$store.getters[
+        "family_backgrounds_module/family_backgrounds"
+      ];
+    },
+  },
   mounted: function () {
     $q = useQuasar();
   },
@@ -346,8 +341,7 @@ export default {
       submit: {
         create: {
           request_type: "create",
-          employee_id:
-            this.$store.state.users.user.personal_informations.employee_id,
+          employee_id: this.employeeID,
           family_type: "Spouse",
           full_name: null,
           birth_date: null,
@@ -356,12 +350,14 @@ export default {
           attach_marriage_certificate: null,
           marriage_date: null,
         },
-        edit: this.getEditDefaultValues(),
+        edit: null,
       },
     };
   },
+  created : function (){
+      this.submit.edit = this.getEditDefaultValues();
+  },
   methods: {
-    ...mapActions(["getUser"]),
     showDialog: function () {
       this.dialog = true;
     },
@@ -377,22 +373,18 @@ export default {
     },
     getEditDefaultValues: function () {
       const response = {
-        full_name:
-          this.$store.state.users.user.family_backgrounds.spouse.full_name,
+        full_name: this.familyBackgrounds.spouse.full_name,
         request_type: "edit",
         family_type: "Spouse",
         birth_date: this.getCorrectDate(
-          this.$store.state.users.user.family_backgrounds.spouse.birth_date
+          this.familyBackgrounds.spouse.birth_date
         ),
-        employee_id:
-          this.$store.state.users.user.personal_informations.employee_id,
-        occupation:
-          this.$store.state.users.user.family_backgrounds.spouse.occupation,
-        company_name:
-          this.$store.state.users.user.family_backgrounds.spouse.company_name,
+        employee_id: this.employeeID,
+        occupation: this.familyBackgrounds.spouse.occupation,
+        company_name: this.familyBackgrounds.spouse.company_name,
         attach_marriage_certificate: null,
         marriage_date: this.getCorrectDate(
-          this.$store.state.users.user.family_backgrounds.spouse.marriage_date
+          this.familyBackgrounds.spouse.marriage_date
         ),
       };
       return response;
@@ -441,7 +433,7 @@ export default {
 
         const obj = {
           request_type: data.request_type,
-          employee_id: data.employee_id,
+          employee_id: this.employeeID,
           family_type: data.family_type,
           full_name: data.full_name,
           birth_date: data.birth_date,
@@ -454,22 +446,25 @@ export default {
           marriage_date: data.marriage_date,
         };
 
-        let response = await FamilyBackgroundService.createRequest(obj);
+        let response = await this.$store.dispatch(
+          "family_backgrounds_module/createRequest",
+          obj
+        );
 
         if (data.attach_marriage_certificate !== null) {
           const formData = new FormData();
           formData.append("request_id", response.data);
           formData.append("request_type", "create");
           formData.append("attach_file", "marriage_certificate");
-          formData.append("employee_id", data.employee_id);
+          formData.append("employee_id", this.employeeID);
           formData.append(
             "marriage_certificate",
             data.attach_marriage_certificate
           );
-          await UploadService.index(formData);
+
+          await this.$store.dispatch("user_module/upload", formData);
         }
 
-        await this.getUser();
         $q.notify({
           type: "positive",
           message: "Sucessfully submitted.",

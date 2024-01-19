@@ -1,10 +1,7 @@
 <template>
   <!---------------------------------------------------------------------- CREATE ---------------------------------------------------------------------->
   <q-card
-    v-if="
-      this.$store.state.users.user.family_backgrounds.parents_in_law
-        .father_in_law.full_name === ''
-    "
+    v-if="familyBackgrounds.parents_in_law.father_in_law.full_name === ''"
   >
     <q-tabs
       v-model="this.default.createTab"
@@ -52,8 +49,8 @@
               >
               </q-input>
               <q-input
-               class="marginLeftAndRight"
-               type="text"
+                class="marginLeftAndRight"
+                type="text"
                 label="Occupation"
                 maxlength="60"
                 v-model="this.submit.create.occupation"
@@ -92,12 +89,7 @@
   </q-card>
   <!---------------------------------------------------------------------- CREATE ---------------------------------------------------------------------->
 
-  <div
-    v-if="
-      this.$store.state.users.user.family_backgrounds.parents_in_law
-        .father_in_law.full_name !== ''
-    "
-  >
+  <div v-if="familyBackgrounds.parents_in_law.father_in_law.full_name !== ''">
     <div class="row justify-center" style="margin-bottom: 12px">
       <q-btn
         color="primary"
@@ -110,8 +102,8 @@
     <div class="borderStyle">
       <div
         class="row bg-white"
-        v-for="(value, property) in this.$store.state.users.user
-          .family_backgrounds.parents_in_law.father_in_law"
+        v-for="(value, property) in this.familyBackgrounds.parents_in_law
+          .father_in_law"
         :key="property"
       >
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
@@ -217,7 +209,7 @@
               </q-input>
             </div>
           </div>
-                   <br />
+          <br />
           <div class="column example-row-equal-width">
             <div class="row">
               <div class="col">
@@ -253,11 +245,19 @@ import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { mapActions } from "vuex";
-import { FamilyBackgroundService } from "src/services/FamilyBackgroundService.js";
 import helperMethods from "src/helperMethods";
 export default {
   name: "Tab_Father_In_Law",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    familyBackgrounds() {
+      return this.$store.getters[
+        "family_backgrounds_module/family_backgrounds"
+      ];
+    },
+  },
   mounted: function () {
     $q = useQuasar();
   },
@@ -270,20 +270,21 @@ export default {
       submit: {
         create: {
           request_type: "create",
-          employee_id:
-            this.$store.state.users.user.personal_informations.employee_id,
+          employee_id: this.employeeID,
           family_type: "Father-In-Law",
           full_name: null,
           birth_date: null,
           occupation: null,
           company_name: null,
         },
-        edit: this.getEditDefaultValues(),
+        edit: null,
       },
     };
   },
+  created: function () {
+    this.submit.edit = this.getEditDefaultValues();
+  },
   methods: {
-    ...mapActions(["getUser"]),
     showDialog: function () {
       this.dialog = true;
     },
@@ -297,22 +298,17 @@ export default {
     getEditDefaultValues: function () {
       const response = {
         full_name:
-          this.$store.state.users.user.family_backgrounds.parents_in_law
-            .father_in_law.full_name,
+          this.familyBackgrounds.parents_in_law.father_in_law.full_name,
         request_type: "edit",
         family_type: "Father-In-Law",
         birth_date: this.getBirthDate(
-          this.$store.state.users.user.family_backgrounds.parents_in_law
-            .father_in_law.birth_date
+          this.familyBackgrounds.parents_in_law.father_in_law.birth_date
         ),
-        employee_id:
-          this.$store.state.users.user.personal_informations.employee_id,
+        employee_id: this.employeeID,
         occupation:
-          this.$store.state.users.user.family_backgrounds.parents_in_law
-            .father_in_law.occupation,
+          this.familyBackgrounds.parents_in_law.father_in_law.occupation,
         company_name:
-          this.$store.state.users.user.family_backgrounds.parents_in_law
-            .father_in_law.company_name,
+          this.familyBackgrounds.parents_in_law.father_in_law.company_name,
       };
       return response;
     },
@@ -335,12 +331,17 @@ export default {
     onSubmit: async function (data) {
       try {
         document.getElementById("btnSubmit").disabled = true;
-        await FamilyBackgroundService.createRequest(data);
-        await this.getUser();
+        data.employee_id = this.employeeID;
+        await this.$store.dispatch(
+          "family_backgrounds_module/createRequest",
+          data
+        );
+
         $q.notify({
           type: "positive",
           message: "Successfully submitted.",
         });
+
         return this.$router.push("/my-request");
       } catch (error) {
         let withRefresh = false;

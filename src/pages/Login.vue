@@ -49,19 +49,8 @@
 
                   <div class="text-center q-mt-sm q-gutter-lg">
                     <br />
-                      
-                      v {{ app_version }}
-                    <!-- <q-btn
-                      color="primary"
-                      label="ASD"
-                      type="button"
-                      @click="pushNotif()"
-                    ></q-btn> -->
 
-                    <!-- <router-link
-                    class="text-black"
-                    to="/account/forgot-password-with-mobile-number"
-                    >Forgot Password?</router-link> -->
+                    v {{ app_version }}
                   </div>
                 </div>
               </q-form>
@@ -78,11 +67,8 @@
 import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
-
 import Title from "../components/Title.vue";
 import Logo from "../components/Logo.vue";
-
-import { mapActions } from "vuex";
 
 export default {
   name: "Login",
@@ -96,7 +82,7 @@ export default {
         employee_id: null,
         password: null,
       },
-      app_version: process.env.APP_VERSION
+      app_version: process.env.APP_VERSION,
     };
   },
   mounted: function () {
@@ -104,45 +90,19 @@ export default {
     this.onReset();
   },
   methods: {
-    ...mapActions(["login"]),
     onSubmit: async function () {
-      // $q.notify({
-      //     type: "positive",
-      //     message: "THIS IS POSITIVE.",
-      //   });
-
-      //   $q.notify({
-      //     type: "negative",
-      //     message: "THIS IS NEGATIVE.",
-      //   });
-
-      //   $q.notify({
-      //     type: "warning",
-      //     message: "THIS IS WARNING.",
-      //   });
-
-      //   $q.notify({
-      //     type: "info",
-      //     message: "THIS IS INFO.",
-      //   });
-
-      // $q.notify({
-      //   type: "ongoing",
-      //   message: "THIS IS ONGOING",
-      // });
       try {
         document.getElementById("btnSubmit").disabled = true;
-        await this.login(this.user);
+        await this.$store.dispatch("user_module/login", {
+          employeeID: this.user.employee_id,
+          password: this.user.password,
+        });
         return this.$router.push("/");
       } catch (error) {
-        let text = error.response.data;
-        // 401 = Unauthorized
-        if (error.response.status === 401) {
-          this.onReset();
-        }
+        this.onReset();
         $q.notify({
           type: "negative",
-          message: text,
+          message: error,
         });
       } finally {
         document.getElementById("btnSubmit").disabled = false;
@@ -156,9 +116,6 @@ export default {
       };
       this.user = value;
     },
-    // pushNotif: function () {
-    //   helperMethods.pushNotification();
-    // },
   },
 };
 </script>

@@ -11,8 +11,7 @@
   <div class="borderStyle">
     <div
       class="row bg-white"
-      v-for="(value, property) in this.$store.state.users.user
-        .family_backgrounds.parents.mother"
+      v-for="(value, property) in familyBackgrounds.parents.mother"
       :key="property"
     >
       <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
@@ -117,8 +116,8 @@
               >
               </q-input>
             </div>
-          </div>    
-           <br />
+          </div>
+          <br />
           <div class="column example-row-equal-width">
             <div class="row">
               <div class="col">
@@ -154,22 +153,32 @@ import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { mapActions } from "vuex";
-import { FamilyBackgroundService } from "src/services/FamilyBackgroundService.js";
 import helperMethods from "src/helperMethods";
 export default {
   name: "Tab_Mother",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    familyBackgrounds() {
+      return this.$store.getters[
+        "family_backgrounds_module/family_backgrounds"
+      ];
+    },
+  },
   mounted: function () {
     $q = useQuasar();
   },
   data: function () {
     return {
       dialog: false,
-      edit: this.getEditDefaultValues(),
+      edit: null,
     };
   },
+  created : function(){
+    this.edit = this.getEditDefaultValues();
+  },
   methods: {
-    ...mapActions(["getUser"]),
     showDialog: function () {
       this.dialog = true;
     },
@@ -184,22 +193,21 @@ export default {
       const response = {
         submit: {
           full_name:
-            this.$store.state.users.user.family_backgrounds.parents.mother
-              .full_name,
+            this.familyBackgrounds
+              .parents.mother.full_name,
           request_type: "edit",
           family_type: "Mother",
           birth_date: this.getBirthDate(
-            this.$store.state.users.user.family_backgrounds.parents.mother
-              .birth_date
+            this.familyBackgrounds
+              .parents.mother.birth_date
           ),
-          employee_id:
-            this.$store.state.users.user.personal_informations.employee_id,
+          employee_id: this.employeeID,
           occupation:
-            this.$store.state.users.user.family_backgrounds.parents.mother
-              .occupation,
+            this.familyBackgrounds
+              .parents.mother.occupation,
           company_name:
-            this.$store.state.users.user.family_backgrounds.parents.mother
-              .company_name,
+            this.familyBackgrounds
+              .parents.mother.company_name,
         },
       };
       return response;
@@ -221,8 +229,10 @@ export default {
     onSubmit: async function (value) {
       try {
         document.getElementById("btnSubmit").disabled = true;
-        await FamilyBackgroundService.createRequest(value);
-        await this.getUser();
+        await this.$store.dispatch(
+          "family_backgrounds_module/createRequest",
+          value
+        );
         $q.notify({
           type: "positive",
           message: "Successfully submitted.",

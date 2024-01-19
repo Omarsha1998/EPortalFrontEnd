@@ -8,9 +8,7 @@
         type="button"
         style="margin-right: 10px"
         @click="this.showDialogEdit()"
-        v-if="
-          this.$store.state.users.user.family_backgrounds.siblings.length > 0
-        "
+        v-if="familyBackgrounds.siblings.length > 0"
       ></q-btn>
       <q-btn
         color="positive"
@@ -23,8 +21,7 @@
 
     <div
       class="borderStyle"
-      v-for="sibling in this.$store.state.users.user.family_backgrounds
-        .siblings"
+      v-for="sibling in familyBackgrounds.siblings"
       :key="sibling.full_name"
     >
       <div v-for="(value, property) in sibling" :key="property">
@@ -272,7 +269,7 @@
               </q-input>
             </div>
           </div>
-         <br />
+          <br />
           <div class="row" style="margin-bottom: 14px">
             <q-btn
               class="full-width"
@@ -304,11 +301,19 @@ import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { mapActions } from "vuex";
-import { FamilyBackgroundService } from "src/services/FamilyBackgroundService.js";
 import helperMethods from "src/helperMethods";
 export default {
   name: "Tab_Siblings",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    familyBackgrounds() {
+      return this.$store.getters[
+        "family_backgrounds_module/family_backgrounds"
+      ];
+    },
+  },
   data: function () {
     return {
       dialogEdit: false,
@@ -369,7 +374,6 @@ export default {
     this.setSiblings();
   },
   methods: {
-    ...mapActions(["getUser"]),
     showDialogEdit: function () {
       this.dialogEdit = true;
     },
@@ -393,8 +397,7 @@ export default {
       const value = {
         request_type: "create",
         family_type: "Sibling",
-        employee_id:
-          this.$store.state.users.user.personal_informations.employee_id,
+        employee_id: this.employeeID,
         full_name: null,
         birth_date: null,
         occupation: null,
@@ -417,14 +420,12 @@ export default {
       }
     },
     setSiblings: function () {
-      for (let item of this.$store.state.users.user.family_backgrounds
-        .siblings) {
+      for (let item of this.familyBackgrounds.siblings) {
         let value = {
           family_id: item.family_id,
           request_type: "edit",
           family_type: "Sibling",
-          employee_id:
-            this.$store.state.users.user.personal_informations.employee_id,
+          employee_id: this.employeeID,
           full_name: item.full_name,
           birth_date: this.getBirthDate(item.birth_date),
           occupation: item.occupation,
@@ -447,7 +448,7 @@ export default {
       const value = {
         request_type: data.request_type,
         family_type: data.family_type,
-        employee_id: data.employee_id,
+        employee_id: this.employeeID,
         full_name: data.full_name,
         birth_date: data.birth_date,
         occupation: data.occupation,
@@ -460,9 +461,10 @@ export default {
     onSubmit: async function (data) {
       try {
         document.getElementById("btnSubmit").disabled = true;
-        await FamilyBackgroundService.createRequest(data);
-
-        await this.getUser();
+        await this.$store.dispatch(
+          "family_backgrounds_module/createRequest",
+          data
+        );
         $q.notify({
           type: "positive",
           message: "Successfully submitted.",

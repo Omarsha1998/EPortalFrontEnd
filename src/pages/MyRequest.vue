@@ -100,7 +100,11 @@
             accept=".pdf"
             clearable
             v-model="comply.submit.value"
-            :label="(this.comply.file_name === undefined) ? 'Attach - Birth Certificate' : 'Attach - Birth Certificate for ' + this.comply.file_name"
+            :label="
+              this.comply.file_name === undefined
+                ? 'Attach - Birth Certificate'
+                : 'Attach - Birth Certificate for ' + this.comply.file_name
+            "
             counter
             lazy-rules
             @rejected="this.onRejected"
@@ -174,13 +178,20 @@
             </template>
             <template v-slot:hint> (5MB maximum file size) </template>
           </q-file>
-           <q-file
-            v-else-if="this.comply.view.field_name === 'TRAINING OR SEMINAR CERTIFICATE'"
+          <q-file
+            v-else-if="
+              this.comply.view.field_name === 'TRAINING OR SEMINAR CERTIFICATE'
+            "
             style="margin: 10px 10px"
             accept=".pdf"
             clearable
             v-model="comply.submit.value"
-           :label="(this.comply.file_name === undefined) ? 'Attach - Training or Seminar Certificate' : 'Attach - Training or Seminar Certificate for ' + this.comply.file_name"
+            :label="
+              this.comply.file_name === undefined
+                ? 'Attach - Training or Seminar Certificate'
+                : 'Attach - Training or Seminar Certificate for ' +
+                  this.comply.file_name
+            "
             counter
             lazy-rules
             @rejected="this.onRejected"
@@ -388,11 +399,9 @@
                   <div
                     v-else-if="
                       (props.row.column_name === 'TOR' ||
-                      props.row.column_name === 'DIPLOMA')
-                      && (
-                      props.row.value === 'tor.pdf' ||
-                      props.row.value === 'diploma.pdf'
-                      )
+                        props.row.column_name === 'DIPLOMA') &&
+                      (props.row.value === 'tor.pdf' ||
+                        props.row.value === 'diploma.pdf')
                     "
                   >
                     <a
@@ -408,13 +417,16 @@
                     >
                   </div>
                   <div
-                    v-else-if="props.row.column_name === 'TRAINING OR SEMINAR CERTIFICATE'"
+                    v-else-if="
+                      props.row.column_name ===
+                      'TRAINING OR SEMINAR CERTIFICATE'
+                    "
                   >
                     <a
                       :href="
                         this.url_training_or_seminar_certificate +
                         this.latest_selected_request_id +
-                       '&statusID=0&folder=value'
+                        '&statusID=0&folder=value'
                       "
                       target="_blank"
                       style="color: #1681ec"
@@ -459,7 +471,10 @@
                         this.showComplyDialog(
                           props.row.id,
                           props.row.column_name,
-                          props.row.column_name === 'TRAINING OR SEMINAR CERTIFICATE'? props.row.value.replaceAll('.pdf', '') : ''
+                          props.row.column_name ===
+                            'TRAINING OR SEMINAR CERTIFICATE'
+                            ? props.row.value.replaceAll('.pdf', '')
+                            : ''
                         )
                       "
                     ></q-btn>
@@ -520,9 +535,7 @@
                   </q-td>
 
                   <q-td key="to" :props="props" v-if="request_type === 'edit'">
-                    <div
-                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
-                    >
+                    <div v-if="props.row.column_name === 'BIRTH CERTIFICATE'">
                       <a
                         :href="
                           this.url_birth_certificate +
@@ -545,9 +558,7 @@
                     :props="props"
                     v-if="request_type === 'create'"
                   >
-                    <div
-                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
-                    >
+                    <div v-if="props.row.column_name === 'BIRTH CERTIFICATE'">
                       <a
                         :href="
                           this.url_birth_certificate +
@@ -598,7 +609,9 @@
                           this.showComplyDialog(
                             props.row.id,
                             props.row.column_name,
-                            (item.sibling_or_child_full_name === undefined ? props.row.value.replace('.pdf', '') : item.sibling_or_child_full_name)
+                            item.sibling_or_child_full_name === undefined
+                              ? props.row.value.replace('.pdf', '')
+                              : item.sibling_or_child_full_name
                           )
                         "
                       ></q-btn>
@@ -798,11 +811,9 @@
                   <div
                     v-else-if="
                       (props.row.column_name === 'TOR' ||
-                      props.row.column_name === 'DIPLOMA')
-                      && (
-                      props.row.value === 'tor.pdf' ||
-                      props.row.value === 'diploma.pdf'
-                      )
+                        props.row.column_name === 'DIPLOMA') &&
+                      (props.row.value === 'tor.pdf' ||
+                        props.row.value === 'diploma.pdf')
                     "
                   >
                     <a
@@ -818,13 +829,16 @@
                     >
                   </div>
                   <div
-                    v-else-if="props.row.column_name === 'TRAINING OR SEMINAR CERTIFICATE'"
+                    v-else-if="
+                      props.row.column_name ===
+                      'TRAINING OR SEMINAR CERTIFICATE'
+                    "
                   >
                     <a
                       :href="
                         this.url_training_or_seminar_certificate +
                         this.latest_selected_request_id +
-                       '&statusID=1&folder=value'
+                        '&statusID=1&folder=value'
                       "
                       target="_blank"
                       style="color: #1681ec"
@@ -891,9 +905,7 @@
                   </q-td>
 
                   <q-td key="to" :props="props" v-if="request_type === 'edit'">
-                    <div
-                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
-                    >
+                    <div v-if="props.row.column_name === 'BIRTH CERTIFICATE'">
                       <a
                         :href="
                           this.url_birth_certificate +
@@ -916,9 +928,7 @@
                     :props="props"
                     v-if="request_type === 'create'"
                   >
-                    <div
-                      v-if="props.row.column_name === 'BIRTH CERTIFICATE'"
-                    >
+                    <div v-if="props.row.column_name === 'BIRTH CERTIFICATE'">
                       <a
                         :href="
                           this.url_birth_certificate +
@@ -945,7 +955,6 @@
   </q-dialog>
   <!---------------------------------------------------------------- APPROVED DETAILS DIALOG ---------------------------------------------------------------->
 
-
   <q-pull-to-refresh @refresh="this.refresh()">
     <q-item-section avatar class="items-center" style="margin: 0 10px">
       <h4 class="text-center">
@@ -971,35 +980,27 @@
           >
             <q-tab
               name="pending"
-              :label="
-                'PENDING (' +
-                this.$store.state.users.user.my_requests.pending.length +
-                ')'
-              "
+              :label="'PENDING (' + this.pending.total + ')'"
             />
             <q-tab
               name="approved"
-              :label="
-                'APPROVED (' +
-                this.$store.state.users.user.my_requests.approved.length +
-                ')'
-              "
+              :label="'APPROVED (' + this.approved.total + ')'"
             />
           </q-tabs>
           <q-separator />
 
           <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="pending">
-
               <q-form
                 class="q-gutter-md"
                 method="post"
                 @submit.prevent="onSearch"
                 autocomplete="off"
               >
-               <div class="row">
+                <div class="row">
                   <q-item-label
-                    >Pending Request : {{ this.pending.minimum_date_with_pending_request }}
+                    >Pending Request :
+                    {{ this.pending.minimum_date_with_pending_request }}
                   </q-item-label>
                 </div>
                 <div class="row">
@@ -1070,8 +1071,8 @@
                         props.row.description,
                         props.row.request_id
                       )
-                      "
-                     style="height: auto;"
+                    "
+                    style="height: auto"
                   >
                     <q-td key="requestID" :props="props">
                       #{{ props.row.request_id }}
@@ -1081,8 +1082,12 @@
                       {{ props.row.stats }}
                     </q-td>
 
-                    <q-td key="requestedFields" :props="props" style="white-space: normal;">
-                        {{ props.row.requested_fields }}
+                    <q-td
+                      key="requestedFields"
+                      :props="props"
+                      style="white-space: normal"
+                    >
+                      {{ props.row.requested_fields }}
                     </q-td>
 
                     <q-td key="dateTimeCreated" :props="props">
@@ -1098,7 +1103,6 @@
             </q-tab-panel>
 
             <q-tab-panel name="approved">
-
               <q-form
                 class="q-gutter-md"
                 method="post"
@@ -1178,7 +1182,7 @@
                         props.row.request_id
                       )
                     "
-                    style="height: auto;"
+                    style="height: auto"
                   >
                     <q-td key="requestID" :props="props">
                       #{{ props.row.request_id }}
@@ -1188,8 +1192,12 @@
                       {{ props.row.stats }}
                     </q-td>
 
-                    <q-td key="requestedFields" :props="props" style="white-space: normal;">
-                        {{ props.row.requested_fields }}
+                    <q-td
+                      key="requestedFields"
+                      :props="props"
+                      style="white-space: normal"
+                    >
+                      {{ props.row.requested_fields }}
                     </q-td>
 
                     <q-td key="dateTimeCreated" :props="props">
@@ -1219,16 +1227,37 @@
 import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
-
-import { MyRequestService } from "src/services/MyRequestService";
-import { PersonalInformationService } from "src/services/PersonalInformationService";
-import { UploadService } from "src/services/UploadService.js";
+import { Cookies } from "quasar";
 import helperMethods from "src/helperMethods";
 import { defineComponent } from "vue";
-import { mapActions } from "vuex";
 
 export default defineComponent({
   name: "MyRequest",
+  computed: {
+    selectedCivilStatusLabel() {
+      const selectedValue = this.comply.submit.value;
+      const selectedOption = this.comply.view.options.find(
+        (option) => option.civil_status_id === selectedValue
+      );
+      return selectedOption ? selectedOption.civil_status_name : "";
+    },
+    selectedReligionLabel() {
+      const selectedValue = this.comply.submit.value;
+      const selectedOption = this.comply.view.options.find(
+        (option) => option.religion_id === selectedValue
+      );
+      return selectedOption ? selectedOption.religion_name : "";
+    },
+    token() {
+      return this.$store.getters["user_module/token"];
+    },
+    employeeID() {
+      return this.$store.getters['user_module/employee_id'];
+    },
+    myRequests() {
+      return this.$store.getters['my_requests_module/my_requests'];
+    },
+  },
   mounted: function () {
     $q = useQuasar();
     let dateToday = helperMethods.getDateToday();
@@ -1238,7 +1267,20 @@ export default defineComponent({
     this.approved.search.date_to = dateToday;
     this.approved.search.date_from = dateMinusDays;
   },
-  created: function () {
+  created: async function () {
+      this.url_marriage_certificate = process.env.BACKEND_REST_API_URL + "/api/uploads/get-marriage-certificate?token=" + this.token + "&requestID="; 
+      this.url_prc_id = process.env.BACKEND_REST_API_URL + "/api/uploads/get-prc-id?token=" + this.token +"&requestID=";
+      this.url_tor_or_diploma = process.env.BACKEND_REST_API_URL + "/api/uploads/get-tor-or-diploma?token=" + this.token + "&requestID=";
+      this.url_birth_certificate = process.env.BACKEND_REST_API_URL + "/api/uploads/get-birth-certificate?token=" + this.token + "&requestID=";
+      this.url_training_or_seminar_certificate = process.env.BACKEND_REST_API_URL + "/api/uploads/get-training-or-seminar-certificate?token=" + this.token + "&requestID=";
+
+      const $q = this.$q;
+      $q.loading.show({
+          message: 'RETRIEVING RECORDS. PLEASE WAIT ...'
+        });
+      await this.getData(null);
+      $q.loading.hide();
+
     setTimeout(() => {
       let value = $q.localStorage.getItem("needToOpen");
       if (value !== null) {
@@ -1251,31 +1293,11 @@ export default defineComponent({
   },
   data: function () {
     return {
-      url_marriage_certificate:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-marriage-certificate?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
-      url_prc_id:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-prc-id?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
-      url_tor_or_diploma:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-tor-or-diploma?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
-      url_birth_certificate:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-birth-certificate?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
-      url_training_or_seminar_certificate:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-training-or-seminar-certificate?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
+      url_marriage_certificate: null,
+      url_prc_id: null,
+      url_tor_or_diploma: null,
+      url_birth_certificate: null,
+      url_training_or_seminar_certificate: null,
       request_type: null,
       are_siblings_or_children: false,
       latest_selected_request_id: 0,
@@ -1296,7 +1318,8 @@ export default defineComponent({
         },
       },
       pending: {
-        minimum_date_with_pending_request : (this.$store.state.users.user.my_requests.minimum_date_with_pending_request === '1900-01-01') ? '' : helperMethods.removeTime(helperMethods.correctDate(this.$store.state.users.user.my_requests.minimum_date_with_pending_request)),
+        total: 0,
+        minimum_date_with_pending_request: null,
         search: {
           date_from: null,
           date_to: null,
@@ -1325,7 +1348,8 @@ export default defineComponent({
               label: "Requested Fields",
               align: "left",
               sortable: true,
-              style: 'max-width: 200px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;', 
+              style:
+                "max-width: 200px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;",
               field: (row) => row.requested_fields,
             },
             {
@@ -1337,7 +1361,7 @@ export default defineComponent({
               field: (row) => row.date_time_created,
             },
           ],
-          rows: this.$store.state.users.user.my_requests.pending,
+          rows: [],
         },
         details: {
           edit: {
@@ -1454,6 +1478,7 @@ export default defineComponent({
         },
       },
       approved: {
+        total: 0,
         search: {
           date_from: null,
           date_to: null,
@@ -1482,7 +1507,8 @@ export default defineComponent({
               label: "Requested Fields",
               align: "left",
               sortable: true,
-              style: 'max-width: 200px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;', 
+              style:
+                "max-width: 200px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;",
               field: (row) => row.requested_fields,
             },
             {
@@ -1494,7 +1520,7 @@ export default defineComponent({
               field: (row) => row.date_time_created,
             },
           ],
-          rows: this.$store.state.users.user.my_requests.approved,
+          rows: [],
         },
         details: {
           edit: {
@@ -1583,51 +1609,108 @@ export default defineComponent({
     };
   },
   methods: {
-    ...mapActions(["getUser"]),
-    getPendingDetails(requestID) {
+    getData: async function (dateRangeSearch) {
+      let dateToday = helperMethods.getDateToday();
+      let dateTodayMinus7Days = helperMethods.getDateMinusDays(7);
+
+      let filterDates = {
+        my_requests: {
+          pending: {
+            date_from:
+              dateRangeSearch === null
+                ? dateTodayMinus7Days
+                : dateRangeSearch.my_requests.pending.date_from,
+            date_to:
+              dateRangeSearch === null
+                ? dateToday
+                : dateRangeSearch.my_requests.pending.date_to,
+          },
+          approved: {
+            date_from:
+              dateRangeSearch === null
+                ? dateTodayMinus7Days
+                : dateRangeSearch.my_requests.approved.date_from,
+            date_to:
+              dateRangeSearch === null
+                ? dateToday
+                : dateRangeSearch.my_requests.approved.date_to,
+          },
+        },
+      };
+
+      await this.$store.dispatch("my_requests_module/get", {
+        employeeID: this.employeeID,
+        dateRangeSearch: filterDates,
+      });
+
+      this.pending.minimum_date_with_pending_request =
+        this.myRequests
+          .minimum_date_with_pending_request === "1900-01-01"
+          ? ""
+          : helperMethods.removeTime(
+              helperMethods.correctDate(
+                this.myRequests
+                  .minimum_date_with_pending_request
+              )
+            );
+
+      this.pending.header.rows =
+        this.myRequests.pending;
+      this.approved.header.rows =
+        this.myRequests.approved;
+      this.pending.total = this.pending.header.rows.length;
+      this.approved.total = this.approved.header.rows.length;
+    },
+    getPendingDetails: async function (requestID) {
       let currentIndex =
-        this.$store.state.users.user.my_requests.pending.findIndex(
+        this.myRequests.pending.findIndex(
           (x) => x.request_id === requestID
         );
 
       this.are_siblings_or_children =
-        this.$store.state.users.user.my_requests.pending[
+        this.myRequests.pending[
           currentIndex
         ].are_siblings_or_children;
 
       this.request_type =
-        this.$store.state.users.user.my_requests.pending[
+        this.myRequests.pending[
           currentIndex
         ].request_type;
 
       let response = [];
-      for (const item of this.$store.state.users.user.my_requests.pending[
-        currentIndex
-      ].details) {
+      for (const item of this.myRequests
+        .pending[currentIndex].details) {
         response.push(item);
       }
       this.pending.details.rows = response;
+
+      let shouldHighLightedToRequester =
+        this.myRequests.pending[currentIndex]
+          .should_high_lighted_to_requester;
+
+      if (shouldHighLightedToRequester === true) {
+        await this.requestNotHighLightedToRequester(requestID, currentIndex);
+      }
     },
-    getApprovedDetails(requestID) {
+    getApprovedDetails: function (requestID) {
       let currentIndex =
-        this.$store.state.users.user.my_requests.approved.findIndex(
+        this.myRequests.approved.findIndex(
           (x) => x.request_id === requestID
         );
 
       this.are_siblings_or_children =
-        this.$store.state.users.user.my_requests.approved[
+        this.myRequests.approved[
           currentIndex
         ].are_siblings_or_children;
 
       this.request_type =
-        this.$store.state.users.user.my_requests.approved[
+        this.myRequests.approved[
           currentIndex
         ].request_type;
 
       let response = [];
-      for (const item of this.$store.state.users.user.my_requests.approved[
-        currentIndex
-      ].details) {
+      for (const item of this.myRequests
+        .approved[currentIndex].details) {
         response.push(item);
       }
       this.approved.details.rows = response;
@@ -1642,17 +1725,14 @@ export default defineComponent({
       this.description = description;
       this.latest_selected_request_id = requestID;
       this.getPendingDetails(requestID);
-      await this.requestNotHighLightedToRequester(requestID);
       this.$refs.dialogPendingDetails.show();
     },
-    requestNotHighLightedToRequester: async function (requestID) {
+    requestNotHighLightedToRequester: async function (requestID, currentIndex) {
       try {
-        let employeeID =
-          this.$store.state.users.user.personal_informations.employee_id;
-        await MyRequestService.requestNotHighLightedToRequester(employeeID, {
-          requestID: requestID,
-        });
-        this.getUser();
+        await this.$store.dispatch(
+          "my_requests_module/requestNotHighLightedToRequester",
+       {requestID : requestID, currentIndex : currentIndex}
+        );
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -1662,7 +1742,7 @@ export default defineComponent({
       this.$refs.dialogPendingDetails.hide();
       $q.localStorage.remove("needToOpen");
       this.pending.header.rows =
-        this.$store.state.users.user.my_requests.pending;
+        this.myRequests.pending;
     },
     showApprovedDetailsDialog: function (description, requestID) {
       this.description = description;
@@ -1679,10 +1759,14 @@ export default defineComponent({
         this.comply.view.field_name = columnName;
         this.comply.file_name = fileName !== "" ? fileName : null;
         if (columnName === "CIVIL STATUS") {
-          let response = await PersonalInformationService.getAllCivilStatuses();
+          let response = await this.$store.dispatch(
+            "personal_informations_module/getAllCivilStatuses"
+          );
           this.comply.view.options = response.data;
         } else if (columnName === "RELIGION") {
-          let response = await PersonalInformationService.getAllReligions();
+          let response = await this.$store.dispatch(
+            "personal_informations_module/getAllReligions"
+          );
           this.comply.view.options = response.data;
         }
       } catch (error) {
@@ -1729,8 +1813,7 @@ export default defineComponent({
           this.comply.submit.value = this.selectedReligionLabel;
         }
 
-        let employeeID =
-          this.$store.state.users.user.personal_informations.employee_id;
+        let employeeID = this.employeeID;
 
         if (
           this.comply.view.field_name === "MARRIAGE CERTIFICATE" ||
@@ -1742,15 +1825,18 @@ export default defineComponent({
         ) {
           let attachFile = "";
 
-          if (this.comply.view.field_name === "MARRIAGE CERTIFICATE" ||
-              this.comply.view.field_name === "DIPLOMA" ||
-              this.comply.view.field_name === "TOR" 
+          if (
+            this.comply.view.field_name === "MARRIAGE CERTIFICATE" ||
+            this.comply.view.field_name === "DIPLOMA" ||
+            this.comply.view.field_name === "TOR"
           ) {
-            attachFile = this.comply.view.field_name.replaceAll(" ", "_").toLowerCase();
+            attachFile = this.comply.view.field_name
+              .replaceAll(" ", "_")
+              .toLowerCase();
           } else if (
             this.comply.view.field_name === "BIRTH CERTIFICATE" ||
             this.comply.view.field_name === "TRAINING OR SEMINAR CERTIFICATE"
-            ) {
+          ) {
             attachFile = this.comply.file_name;
           } else if (this.comply.view.field_name === "PRC ID") {
             const arrayOfWords = this.description.split("license ");
@@ -1768,10 +1854,16 @@ export default defineComponent({
           formData.append("attach_file", attachFile);
           formData.append("employee_id", employeeID);
           formData.append(attachFile, this.comply.submit.value);
-          await UploadService.index(formData);
+
+          await this.$store.dispatch("user_module/upload", {
+            body: formData,
+          });
         }
 
-        await MyRequestService.submitComply(employeeID, this.comply.submit);
+        await this.$store.dispatch("my_requests_module/submitComply", {
+          employeeID: employeeID,
+          body: this.comply.submit,
+        });
 
         helperMethods.createCookie("notify_message", "Successfully submitted.");
         helperMethods.createCookie("notify_type", "positive");
@@ -1801,23 +1893,11 @@ export default defineComponent({
         ? "highlightedRow"
         : "notHighlightedRow";
     },
-       onSearch: async function () {
+    onSearch: async function () {
       try {
         document.getElementById("btnSearch").disabled = true;
-        let dateToday = helperMethods.getDateToday();
-        let dateTodayMinus7Days = helperMethods.getDateMinusDays(7);
 
         const dateRangeSearch = {
-          other_requests: {
-            pending: {
-              date_from: dateTodayMinus7Days,
-              date_to: dateToday,
-            },
-            my_approved: {
-              date_from: dateTodayMinus7Days,
-              date_to: dateToday,
-            },
-          },
           my_requests: {
             pending: {
               date_from: this.pending.search.date_from,
@@ -1829,34 +1909,14 @@ export default defineComponent({
             },
           },
         };
-        await this.getUser(dateRangeSearch);
-              this.pending.header.rows =
-        this.$store.state.users.user.my_requests.pending;
-              this.approved.header.rows =
-        this.$store.state.users.user.my_requests.approved;
 
+        await this.getData(dateRangeSearch);
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
-      }finally{
+      } finally {
         document.getElementById("btnSearch").disabled = false;
       }
-    },
-  },
-  computed: {
-    selectedCivilStatusLabel() {
-      const selectedValue = this.comply.submit.value;
-      const selectedOption = this.comply.view.options.find(
-        (option) => option.civil_status_id === selectedValue
-      );
-      return selectedOption ? selectedOption.civil_status_name : "";
-    },
-    selectedReligionLabel() {
-      const selectedValue = this.comply.submit.value;
-      const selectedOption = this.comply.view.options.find(
-        (option) => option.religion_id === selectedValue
-      );
-      return selectedOption ? selectedOption.religion_name : "";
     },
   },
 });

@@ -8,7 +8,7 @@ import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import helperMethods from "./helperMethods.js";
+import helperMethods from './helperMethods';
 
 export default {
   name: "App",

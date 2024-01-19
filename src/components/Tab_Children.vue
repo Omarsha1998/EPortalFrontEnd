@@ -8,9 +8,7 @@
         type="button"
         style="margin-right: 10px"
         @click="this.showDialogEdit()"
-        v-if="
-          this.$store.state.users.user.family_backgrounds.children.length > 0
-        "
+        v-if="familyBackgrounds.children.length > 0"
       ></q-btn>
       <q-btn
         color="positive"
@@ -23,7 +21,7 @@
 
     <div
       class="borderStyle"
-      v-for="child in this.$store.state.users.user.family_backgrounds.children"
+      v-for="child in familyBackgrounds.children"
       :key="child.full_name"
     >
       <div v-for="(value, property) in child" :key="property">
@@ -356,12 +354,19 @@ import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { mapActions } from "vuex";
-import { FamilyBackgroundService } from "src/services/FamilyBackgroundService.js";
-import { UploadService } from "src/services/UploadService.js";
 import helperMethods from "src/helperMethods";
 export default {
   name: "Tab_Children",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    familyBackgrounds() {
+      return this.$store.getters[
+        "family_backgrounds_module/family_backgrounds"
+      ];
+    },
+  },
   data: function () {
     return {
       dialogEdit: false,
@@ -431,7 +436,6 @@ export default {
     this.setChildren();
   },
   methods: {
-    ...mapActions(["getUser"]),
     showDialogEdit: function () {
       this.dialogEdit = true;
     },
@@ -455,8 +459,7 @@ export default {
       const value = {
         request_type: "create",
         family_type: "Child",
-        employee_id:
-          this.$store.state.users.user.personal_informations.employee_id,
+        employee_id: this.employeeID,
         full_name: null,
         birth_date: null,
         occupation: null,
@@ -480,14 +483,12 @@ export default {
       }
     },
     setChildren: function () {
-      for (let item of this.$store.state.users.user.family_backgrounds
-        .children) {
+      for (let item of this.familyBackgrounds.children) {
         let value = {
           family_id: item.family_id,
           request_type: "edit",
           family_type: "Child",
-          employee_id:
-            this.$store.state.users.user.personal_informations.employee_id,
+          employee_id: this.employeeID,
           full_name: item.full_name,
           birth_date: this.getBirthDate(item.birth_date),
           occupation: item.occupation,
@@ -556,7 +557,7 @@ export default {
           let newObj = {
             request_type: currentObject.request_type,
             family_type: currentObject.family_type,
-            employee_id: currentObject.employee_id,
+            employee_id: this.employeeID,
             full_name: currentObject.full_name,
             birth_date: currentObject.birth_date,
             occupation: currentObject.occupation,
@@ -575,7 +576,10 @@ export default {
           array.push(newObj);
         }
 
-        let response = await FamilyBackgroundService.createRequest(array);
+        let response = await this.$store.dispatch(
+          "family_backgrounds_module/createRequest",
+          array
+        );
 
         for (let i = 0; i < data.length; i++) {
           let currentObject = data[i];
@@ -589,11 +593,11 @@ export default {
               currentObject.full_name,
               currentObject.attach_birth_certificate
             );
-            await UploadService.index(formData);
+
+            await this.$store.dispatch("user_module/upload", formData);
           }
         }
 
-        await this.getUser();
         $q.notify({
           type: "positive",
           message: "Successfully submitted.",

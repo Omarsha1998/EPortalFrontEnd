@@ -360,8 +360,7 @@
                     class="buttonBlock"
                     @click="
                       this.showApproveDialog(
-                        this.$store.state.users.user.personal_informations
-                          .employee_id
+                        employeeID
                       )
                     "
                   ></q-btn>
@@ -374,8 +373,7 @@
                     class="buttonBlock"
                     @click="
                       this.showSetRemarksDialog(
-                        this.$store.state.users.user.personal_informations
-                          .employee_id
+                        employeeID
                       )
                     "
                   ></q-btn>
@@ -826,16 +824,16 @@
             <q-tab
               name="pending"
               :label="
-                'PENDING (' +
-                this.$store.state.users.user.other_requests.pending.length +
+                'PENDING (' 
+              + this.pending.total +
                 ')'
               "
             />
             <q-tab
               name="myApproved"
               :label="
-                'MY APPROVED (' +
-                this.$store.state.users.user.other_requests.my_approved.length +
+                'MY APPROVED (' 
+               + this.my_approved.total +
                 ')'
               "
             />
@@ -1064,6 +1062,7 @@
                   </q-tr>
                 </template>
               </q-table>
+
             </q-tab-panel>
           </q-tab-panels>
         </q-card>
@@ -1079,13 +1078,23 @@ import { useQuasar } from "quasar";
 let $q;
 // -------------------- Notify plugins --------------------
 
-import { OtherRequestService } from "src/services/OtherRequestService.js";
 import helperMethods from "src/helperMethods";
 import { defineComponent } from "vue";
-import { mapActions } from "vuex";
+import { Cookies } from "quasar";
 
 export default defineComponent({
   name: "OtherRequest",
+  computed: {
+    token() {
+      return this.$store.getters["user_module/token"];
+    },
+    employeeID() {
+      return this.$store.getters['user_module/employee_id'];
+    },
+    otherRequests() {
+      return this.$store.getters['other_requests_module/other_requests'];
+    },
+  },
   mounted: function () {
     $q = useQuasar();
     let dateToday = helperMethods.getDateToday();
@@ -1095,7 +1104,20 @@ export default defineComponent({
     this.my_approved.search.date_to = dateToday;
     this.my_approved.search.date_from = dateMinusDays;
   },
-  created: function () {
+  created: async function () {
+    this.url_marriage_certificate = process.env.BACKEND_REST_API_URL + "/api/uploads/get-marriage-certificate?token=" + this.token + "&requestID=";
+    this.url_prc_id = process.env.BACKEND_REST_API_URL + "/api/uploads/get-prc-id?token=" + this.token + "&requestID=";
+    this.url_tor_or_diploma = process.env.BACKEND_REST_API_URL + "/api/uploads/get-tor-or-diploma?token=" + this.token + "&requestID=";
+    this.url_birth_certificate = process.env.BACKEND_REST_API_URL + "/api/uploads/get-birth-certificate?token=" + this.token + "&requestID=";
+    this.url_training_or_seminar_certificate = process.env.BACKEND_REST_API_URL + "/api/uploads/get-training-or-seminar-certificate?token=" + this.token +"&requestID=";
+
+    const $q = this.$q;
+      $q.loading.show({
+          message: 'RETRIEVING RECORDS. PLEASE WAIT ...'
+        });
+      await this.getData(null);
+      $q.loading.hide();
+
     setTimeout(() => {
       let value = $q.localStorage.getItem("needToOpen");
       if (value !== null) {
@@ -1108,31 +1130,11 @@ export default defineComponent({
   },
   data: function () {
     return {
-      url_marriage_certificate:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-marriage-certificate?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
-      url_prc_id:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-prc-id?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
-      url_tor_or_diploma:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-tor-or-diploma?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
-      url_birth_certificate:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-birth-certificate?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
-      url_training_or_seminar_certificate:
-        process.env.BACKEND_REST_API_URL +
-        "/api/uploads/get-training-or-seminar-certificate?token=" +
-        this.$store.state.users.token +
-        "&requestID=",
+      url_marriage_certificate: null,
+      url_prc_id: null,
+      url_tor_or_diploma: null,
+      url_birth_certificate: null,
+      url_training_or_seminar_certificate: null,
       request_type: null,
       are_siblings_or_children: false,
       selected: [],
@@ -1141,7 +1143,8 @@ export default defineComponent({
       hr_remarks: null,
       tab: "pending",
       pending: {
-       minimum_date_with_pending_request : (this.$store.state.users.user.other_requests.minimum_date_with_pending_request === '1900-01-01') ? '' : helperMethods.removeTime(helperMethods.correctDate(this.$store.state.users.user.other_requests.minimum_date_with_pending_request)),
+       total: 0,
+       minimum_date_with_pending_request : null,
        search: {
           date_from: null,
           date_to: null,
@@ -1190,7 +1193,7 @@ export default defineComponent({
               field: (row) => row.created_by,
             },
           ],
-          rows: this.$store.state.users.user.other_requests.pending,
+          rows: [],
         },
         details: {
           edit: {
@@ -1293,6 +1296,7 @@ export default defineComponent({
         },
       },
       my_approved: {
+        total: 0,
         search: {
           date_from: null,
           date_to: null,
@@ -1341,7 +1345,7 @@ export default defineComponent({
               field: (row) => row.created_by,
             },
           ],
-          rows: this.$store.state.users.user.other_requests.my_approved,
+          rows: [],
         },
         details: {
           edit: {
@@ -1414,50 +1418,96 @@ export default defineComponent({
     };
   },
   methods: {
-    ...mapActions(["getUser"]),
-    getPendingDetails: function (requestID) {
+       getData: async function (dateRangeSearch) {
+    let dateToday = helperMethods.getDateToday();
+    let dateTodayMinus7Days = helperMethods.getDateMinusDays(7);
+
+    let filterDates = {
+        other_requests: {
+          pending: {
+            date_from: dateRangeSearch === null ? dateTodayMinus7Days : dateRangeSearch.other_requests.pending.date_from,
+            date_to: dateRangeSearch === null ? dateToday : dateRangeSearch.other_requests.pending.date_to,
+          },
+          my_approved: {
+            date_from: dateRangeSearch === null ? dateTodayMinus7Days : dateRangeSearch.other_requests.my_approved.date_from,
+            date_to: dateRangeSearch === null ? dateToday : dateRangeSearch.other_requests.my_approved.date_to,
+          },
+        },
+    }
+
+      await this.$store.dispatch("other_requests_module/get", {
+        employeeID: this.employeeID,
+        dateRangeSearch: filterDates,
+      });
+
+    this.pending.minimum_date_with_pending_request = 
+    this.otherRequests.minimum_date_with_pending_request === "1900-01-01"
+            ? ""
+            : helperMethods.removeTime(
+                helperMethods.correctDate(
+                  this.otherRequests
+                    .minimum_date_with_pending_request
+                )
+              );
+
+      this.pending.header.rows = this.otherRequests.pending;
+      this.my_approved.header.rows = this.otherRequests.my_approved;
+      this.pending.total = this.pending.header.rows.length;
+      this.my_approved.total = this.my_approved.header.rows.length;
+
+    },
+    getPendingDetails: async function (requestID) {
       let currentIndex =
-        this.$store.state.users.user.other_requests.pending.findIndex(
+        this.otherRequests.pending.findIndex(
           (x) => x.request_id === requestID
         );
 
       this.are_siblings_or_children =
-        this.$store.state.users.user.other_requests.pending[
+        this.otherRequests.pending[
           currentIndex
         ].are_siblings_or_children;
 
       this.request_type =
-        this.$store.state.users.user.other_requests.pending[
+        this.otherRequests.pending[
           currentIndex
         ].request_type;
 
       let response = [];
-      for (const item of this.$store.state.users.user.other_requests.pending[
+      for (const item of this.otherRequests.pending[
         currentIndex
       ].details) {
         response.push(item);
       }
 
       this.pending.details.rows = response;
+
+     let shouldHighLightedToHR = this.otherRequests.pending[
+          currentIndex
+        ].should_high_lighted_to_hr;
+
+      if (shouldHighLightedToHR === true){
+         await this.requestNotHighLightedToHR(requestID, currentIndex);
+      }
+
     },
     getMyApprovedDetails: function (requestID) {
       let currentIndex =
-        this.$store.state.users.user.other_requests.my_approved.findIndex(
+        this.otherRequests.my_approved.findIndex(
           (x) => x.request_id === requestID
         );
 
       this.are_siblings_or_children =
-        this.$store.state.users.user.other_requests.my_approved[
+        this.otherRequests.my_approved[
           currentIndex
         ].are_siblings_or_children;
 
       this.request_type =
-        this.$store.state.users.user.other_requests.my_approved[
+        this.otherRequests.my_approved[
           currentIndex
         ].request_type;
 
       let response = [];
-      for (const item of this.$store.state.users.user.other_requests
+      for (const item of this.otherRequests
         .my_approved[currentIndex].details) {
         response.push(item);
       }
@@ -1521,17 +1571,11 @@ export default defineComponent({
       this.description = description;
       this.latest_selected_request_id = requestID;
       this.getPendingDetails(requestID);
-      await this.requestNotHighLightedToHR(requestID);
       this.$refs.dialogPendingDetails.show();
     },
-    requestNotHighLightedToHR: async function (requestID) {
+    requestNotHighLightedToHR: async function (requestID, currentIndex) {
       try {
-        let employeeID =
-          this.$store.state.users.user.personal_informations.employee_id;
-        await OtherRequestService.requestNotHighLightedToHR(employeeID, {
-          requestID: requestID,
-        });
-        this.getUser();
+        await this.$store.dispatch("other_requests_module/requestNotHighLightedToHR", {requestID : requestID, currentIndex : currentIndex});
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);
@@ -1542,7 +1586,7 @@ export default defineComponent({
       this.selected = [];
       $q.localStorage.remove("needToOpen");
       this.pending.header.rows =
-        this.$store.state.users.user.other_requests.pending;
+        this.otherRequests.pending;
     },
     showMyApprovedDetailsDialog: function (description, requestID) {
       this.description = description;
@@ -1558,10 +1602,12 @@ export default defineComponent({
         document.getElementById("btnYes").disabled = true;
         let ids = this.getIDs(this.selected);
         let employeeID = helperMethods.getCookie("selected_employee_id");
-        let response = await OtherRequestService.approveRequest(
-          employeeID,
-          ids
-        );
+
+        let response = await this.$store.dispatch('other_requests_module/approveRequest', {
+              employeeID: employeeID,
+              body : ids,
+            });
+
         helperMethods.createCookie("notify_message", response.data);
         helperMethods.createCookie("notify_type", "positive");
         helperMethods.refreshPage();
@@ -1582,7 +1628,12 @@ export default defineComponent({
           ids: ids,
           hr_remarks: this.hr_remarks,
         };
-        let response = await OtherRequestService.setHRRemarks(employeeID, data);
+
+        let response = await this.$store.dispatch('other_requests_module/setHRRemarks', {
+              employeeID: employeeID,
+              body : data,
+        });
+
         helperMethods.createCookie("notify_message", response.data);
         helperMethods.createCookie("notify_type", "positive");
 
@@ -1621,8 +1672,6 @@ export default defineComponent({
     onSearch: async function () {
       try {
         document.getElementById("btnSearch").disabled = true;
-        let dateToday = helperMethods.getDateToday();
-        let dateTodayMinus7Days = helperMethods.getDateMinusDays(7);
 
         const dateRangeSearch = {
           other_requests: {
@@ -1635,23 +1684,8 @@ export default defineComponent({
               date_to: this.my_approved.search.date_to,
             },
           },
-          my_requests: {
-            pending: {
-              date_from: dateTodayMinus7Days,
-              date_to: dateToday,
-            },
-            approved: {
-              date_from: dateTodayMinus7Days,
-              date_to: dateToday,
-            },
-          },
         };
-        await this.getUser(dateRangeSearch);
-              this.pending.header.rows =
-        this.$store.state.users.user.other_requests.pending;
-              this.my_approved.header.rows =
-        this.$store.state.users.user.other_requests.my_approved;
-
+        await this.getData(dateRangeSearch);
       } catch (error) {
         let withRefresh = false;
         helperMethods.showErrorMessage(error, withRefresh);

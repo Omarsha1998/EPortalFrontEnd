@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf" v-if="$store.state.users.user !== null">
+  <q-layout view="lHh Lpr lFf" v-if="hasAllValues === true">
     <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -10,18 +10,18 @@
           aria-label="Menu"
           @click="ontoggleLeftDrawer()"
         />
-        <q-toolbar-title>{{
-          $q.screen.lt.sm ? "UERM PIS" : app_name
-        }}</q-toolbar-title>
-        <div>
-          v {{ app_version }}
-        </div>
+        <q-toolbar-title @click="redirect()" style="cursor: pointer">
+          {{  app_name }}
+        </q-toolbar-title>
+
+        <div>v {{ app_version }}</div>
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer v-model="leftDrawerOpen" 
+      show-if-above bordered
+    >
       <q-list>
-
         <div class="example-row-equal-width">
           <div class="row">
             <div class="col bg-grey-2">
@@ -31,35 +31,64 @@
             </div>
             <div class="col bg-grey-2">
               <q-avatar size="90px" style="border-radius: 0" class="center">
-                <img src="../assets/images/uerm-hospital-logo.png" alt="uerm-hospital-logo" />
+                <img
+                  src="../assets/images/uerm-hospital-logo.png"
+                  alt="uerm-hospital-logo"
+                />
               </q-avatar>
             </div>
           </div>
         </div>
+        <br />
 
-        <q-card-section style="margin: 37px 0">
-          <q-avatar size="90px" class="absolute-center">
+        <q-card-section style="margin: 60px 0">
+          <q-avatar size="160px" class="absolute-center">
             <img
-              :src="
-                'http://10.107.11.169/getpic/?i=' +
-                $store.state.users.user.personal_informations.employee_id
-              "
+              :src="'http://10.107.11.169/getpic/?i=' + employeeID"
               alt="avatar"
             />
           </q-avatar>
         </q-card-section>
 
         <q-item-label header class="text-center">
-          Name : {{ $store.state.users.user.personal_informations.name }}
+          <span> {{ employeeID }}</span>
+          <br />
+          <span style="font-weight: bold"> {{ employeeFullName }} </span>
         </q-item-label>
 
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
+        <q-expansion-item
+          class="custom-expansion-item"
+          icon="settings"
+          label="Personnel Information System"
+        >
+          <q-card>
+            <q-card-section>
+              <EssentialLink
+                v-for="link in essentialLinks"
+                :key="link.title"
+                v-bind="link"
+              />
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
 
-        <q-item @click="onLogout()" href="/account/login">
+        <q-expansion-item
+          class="custom-expansion-item"
+          icon="event_busy"
+          label="Leave Management System"
+        >
+          <q-card>
+            <q-card-section>
+              <EssentialLink
+                v-for="link in filteredChildren"
+                :key="link.title"
+                v-bind="link"
+              />
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+
+        <q-item clickable @click="onLogout()">
           <q-item-section avatar>
             <q-icon name="logout" />
           </q-item-section>
@@ -68,7 +97,6 @@
           </q-item-section>
         </q-item>
       </q-list>
-
     </q-drawer>
 
     <q-page-container>
@@ -78,9 +106,8 @@
 </template>
 
 <script>
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
-import { mapActions } from "vuex";
 import helperMethods from "../helperMethods.js";
 
 export default defineComponent({
@@ -88,45 +115,73 @@ export default defineComponent({
   components: {
     EssentialLink,
   },
+  computed: {
+    hasAllValues() {
+      return this.$store.getters["user_module/has_all_values"];
+    },
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    employeeFullName() {
+      return this.$store.getters["user_module/employee_full_name"];
+    },
+    isHR() {
+      return this.$store.getters["user_module/is_hr"];
+    },
+    isLicense() {
+      return this.$store.getters["user_module/is_license"];
+    },
+    hasWorkExperience() {
+      return this.$store.getters["user_module/has_work_experience"];
+    },
+    mainLinks() {
+      return this.$store.getters["helpers/mainLinks"];
+    },
+    filteredChildren() {
+      if (this.isAdmin) {
+        return this.mainLinks[0].children;
+      } else {
+        return this.mainLinks[0].children.filter(child => child.title !== 'Leave Approval');
+      }
+    },
+    isAdmin() {
+      return this.$store.state.user_module.isAdmin;
+    },
+  },
   data: function () {
     return {
       app_name: process.env.APP_NAME,
       app_version: process.env.APP_VERSION,
       essentialLinks: this.getLinkLists(),
-      leftDrawerOpen : false,
+      leftDrawerOpen: false,
     };
   },
   created: function () {
-    
     // User is not HR Employee
-    if (
-      this.$store.state.users.user.personal_informations.department_id !==
-      process.env.HR_DEPARTMENT_ID
-    ) {
+    if (this.isHR === false) {
       this.removeTab("Other Request");
       this.removeTab("Attachment Archive");
     }
 
     // User is not license
-    if (this.$store.state.users.user.licenses.length === 0) {
+    if (this.isLicense === false) {
       this.removeTab("License");
     }
 
     // Check if there is no previous work experiences
-    if (this.$store.state.users.user.work_experiences.length === 0) {
+    if (this.hasWorkExperience === false) {
       this.removeTab("Work Experience");
     }
-
   },
   methods: {
-    ...mapActions(["logout"]),
-    ontoggleLeftDrawer : function() {
-         this.leftDrawerOpen = !this.leftDrawerOpen;
-      },
-    onLogout: function () {
-      this.logout();
+    redirect: function () {
+      helperMethods.redirect("/");
     },
-    refreshPage: function () {
+    ontoggleLeftDrawer: function () {
+      this.leftDrawerOpen = !this.leftDrawerOpen;
+    },
+    onLogout: async function () {
+      await this.$store.dispatch("user_module/logout", this.employeeID);
       helperMethods.refreshPage();
     },
     getLinkLists: function () {

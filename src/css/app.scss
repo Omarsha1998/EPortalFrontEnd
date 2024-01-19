@@ -119,3 +119,44 @@
 .marginLeftAndRight{
   margin: 0px 10px;
 }
+
+.custom-expansion-item:open {
+  /* Your custom styles for the opened state */
+  background-color: transparent !important; /* Prevent default background color change */
+  color: #000000 !important; /* Change text color if needed */
+}
+
+
+.custom-expansion-item {
+  color: #000000 !important; /* Change text color if needed */
+}
+
+
+.sticky-thead {
+  position: sticky;
+  top: 0;
+  background-color: #eeeeee;
+  z-index: 1;
+}
+
+
+.insideCard {
+  padding-bottom: 10px;
+}
+
+
+.virtual-scroll::-webkit-scrollbar {
+  width: 10px; 
+}
+
+.virtual-scroll::-webkit-scrollbar-thumb {
+  background-color: $primary; 
+  border-radius: 6px; 
+}
+
+.virtual-scroll::-webkit-scrollbar-track {
+  background-color: #ecf0f1; 
+  border-radius: 6px; 
+}
+
+

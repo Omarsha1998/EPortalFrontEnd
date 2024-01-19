@@ -7,28 +7,22 @@
       </h4>
     </q-item-section>
 
-    <div class="q-pa-md">
+    <div class="q-pa-md" v-if="this.formIsvisible === true">
       <div class="q-gutter-y-md">
-        <h5
-          class="text-center"
-          v-if="this.$store.state.users.user.work_experiences.length === 0"
-        >
+        <h5 class="text-center" v-if="workExperiences.length === 0">
           No Records found
         </h5>
 
-        <div v-if="this.$store.state.users.user.work_experiences.length > 0">
+        <div v-if="workExperiences.length > 0">
           <q-item-label
             class="text-center"
             style="margin-bottom: 15px; font-weight: bold"
-            >TOTAL RECORDS : ({{
-              this.$store.state.users.user.work_experiences.length
-            }})</q-item-label
+            >TOTAL RECORDS : ({{ workExperiences.length }})</q-item-label
           >
 
           <div
             class="borderStyle"
-            v-for="work_experience in this.$store.state.users.user
-              .work_experiences"
+            v-for="work_experience in this.workExperiences"
             :key="work_experience.company_name"
           >
             <div
@@ -65,7 +59,31 @@ import helperMethods from "../helperMethods.js";
 
 export default defineComponent({
   name: "WorkExperience",
+  computed: {
+    employeeID() {
+      return this.$store.getters["user_module/employee_id"];
+    },
+    workExperiences() {
+      return this.$store.getters["work_experiences_module/work_experiences"];
+    },
+  },
+  data: function () {
+    return {
+      formIsvisible: false,
+    };
+  },
+  created: async function () {
+    await this.getData();
+  },
   methods: {
+    getData: async function () {
+      await this.$store.dispatch(
+        "work_experiences_module/get",
+        this.employeeID
+      );
+
+      this.formIsvisible = true;
+    },
     refresh: function () {
       helperMethods.refreshPage();
     },
