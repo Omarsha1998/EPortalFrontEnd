@@ -44,7 +44,7 @@
         <q-card-section style="margin: 60px 0">
           <q-avatar size="160px" class="absolute-center">
             <img
-              :src="'http://10.107.11.169/getpic/?i=' + employeeID"
+              :src="image_rest_api + employeeID"
               alt="avatar"
             />
           </q-avatar>
@@ -125,8 +125,8 @@ export default defineComponent({
     employeeFullName() {
       return this.$store.getters["user_module/employee_full_name"];
     },
-    isHR() {
-      return this.$store.getters["user_module/is_hr"];
+    isPISApprover() {
+      return this.$store.getters["user_module/is_pis_approver"];
     },
     isLicense() {
       return this.$store.getters["user_module/is_license"];
@@ -152,13 +152,14 @@ export default defineComponent({
     return {
       app_name: process.env.APP_NAME,
       app_version: process.env.APP_VERSION,
+      image_rest_api: process.env.IMAGE_REST_API_URL,
       essentialLinks: this.getLinkLists(),
       leftDrawerOpen: false,
     };
   },
   created: function () {
-    // User is not HR Employee
-    if (this.isHR === false) {
+    // User is not PIS Approver
+    if (this.isPISApprover === false) {
       this.removeTab("Other Request");
       this.removeTab("Attachment Archive");
     }

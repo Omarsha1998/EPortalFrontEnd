@@ -62,7 +62,8 @@ module.exports = configure(function (ctx) {
       env: {
         APP_NAME: "UERM Employee Portal",
         APP_VERSION: "1.0",
-        BACKEND_REST_API_URL: "http://10.107.0.11:8082",
+        BACKEND_REST_API_URL: "http://10.107.0.6:8082",
+        IMAGE_REST_API_URL: "http://10.107.11.169/getpic/?i=",
         BACKEND_REST_API_TIMEOUT : 50000,
         START_NOTIF_DAYS: 180
       },

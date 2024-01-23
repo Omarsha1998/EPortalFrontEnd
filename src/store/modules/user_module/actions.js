@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { Cookies } from 'quasar';
 import helperMethods from 'src/helperMethods';
 
 let api = process.env.BACKEND_REST_API_URL;

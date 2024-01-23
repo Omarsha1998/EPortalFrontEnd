@@ -244,7 +244,7 @@ export default route(function (/* { store, ssrContext } */) {
       }
 
       // #region Validation_IsNotHREmployee
-      if (Store.getters['user_module/is_hr'] === false
+      if (Store.getters['user_module/is_pis_approver'] === false
         &&
         (tofullPathLowerCase.includes("/other-request") === true ||
           tofullPathLowerCase.includes("/attachment-archive") === true
