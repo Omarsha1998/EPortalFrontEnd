@@ -76,9 +76,9 @@ export default {
     };
   },
 
-  async fetchUserLeaveBalancesDetails({ commit, dispatch }, employeeCode) {
+  async fetchUserLeaveBalancesDetails({ commit, dispatch }, employeeID) {
     try {
-      const response = await axios.get(`${APIUrl}/leave/user-leave-balance/${employeeCode}`, {
+      const response = await axios.get(`${APIUrl}/leave/user-leave-balance/${employeeID}`, {
         headers: { Authorization: `Bearer ${Cookies.get('token')}`},
       });
       commit('SET_BALANCE_USERBALANCEDETAILS', response.data)
@@ -210,6 +210,7 @@ export default {
 
 
   loadAndConvertToBase64({ commit }, logoPath) {
+    
     const image = new Image();
     image.src = logoPath;
 

@@ -797,8 +797,6 @@ export default {
         { name: 'Balance', label: 'Balance', align: 'center', field: 'Balance', sortable: false},
       ],
 
-      AllLeaveBalance: [],
-
     };
   },
 

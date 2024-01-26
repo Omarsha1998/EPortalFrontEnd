@@ -971,7 +971,6 @@ export default {
         { name: 'Year Attributed', label: 'Year', align: 'center', field: 'Year', sortable: false },
         { name: 'Balance', label: 'Balance', align: 'center', field: 'Remaining', sortable: false } ,
       ],
-      AllLeaveBalance: [],
       ForfeitedLeaves: [],
       forfeitedColumns: [
         { name: 'ID', label: 'ID', align: 'center', field: 'id', sortable: false},

@@ -3,7 +3,6 @@ export default {
     {
       title: 'Leave Management',
       caption: 'Leave Application',
-      active: false,
       link: '',
       children: [
         {
@@ -21,5 +20,20 @@ export default {
       ],
     },
   ],
-  
+  DTRLinks: [
+    {
+      title: 'DTR Time Record',
+      caption: 'Daily Time Record Application',
+      link: '',
+      children: [
+        {
+          title: 'My DTR',
+          caption: 'Daily Time Record',
+          link: '/MyDTR',
+          icon: 'timer',
+        },
+      ],
+    },
+  ],
+
 }

@@ -136,6 +136,14 @@ export default route(function (/* { store, ssrContext } */) {
             },
             children: [{ path: '', component: () => import('src/pages/LeaveOperation.vue') }],
           },
+          {
+            path: '/MyDTR',
+            meta: {
+              title: "MY DTR",
+              requiresAuth: true,
+            },
+            children: [{ path: '', component: () => import('src/pages/DTRPage.vue') }],
+          }
         ]
       },
       {
@@ -255,7 +263,7 @@ export default route(function (/* { store, ssrContext } */) {
       // #endregion
 
           // #region Validation_IsNotApproverEmployee
-        if (Store.getters['user_module/getIsAdmin'] === false
+        if (Store.getters['user_module/is_leave_approver'] === false
           &&
           (tofullPathLowerCase.includes("leaveoperation") === true)
         ) {

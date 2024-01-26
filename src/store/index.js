@@ -14,6 +14,7 @@ import user_module from './modules/user_module';
 import helpers from './helpers'
 import leaveModule from './modules/leaveModule';
 import announcementModule from './modules/announcementModule'
+import DTRModule from './modules/DTRModule/index.js';
 
 
 const Store = createStore({
@@ -30,7 +31,8 @@ const Store = createStore({
     user_module,
     helpers,
     leaveModule,
-    announcementModule
+    announcementModule,
+    DTRModule
   },
   plugins: [createLogger(), middleware],
 })

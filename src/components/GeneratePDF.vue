@@ -72,12 +72,20 @@ export default {
       return dateTime.toLocaleDateString(undefined, options);
     },
 
-    loadAndConvertToBase64() {
-      this.$store.dispatch('leaveModule/loadAndConvertToBase64', logoPath);
+    // loadAndConvertToBase64() {
+    //   this.$store.dispatch('leaveModule/loadAndConvertToBase64', logoPath);
+    // },
+
+    async fetchUserLeaveDetails(userCode) {
+      const employeeID = userCode;
+      try {
+        await this.$store.dispatch('leaveModule/fetchUserLeaveBalancesDetails', employeeID);
+      } catch (error) {
+        console.error('Failed to get User Leave Balance');
+      }
     },
 
-    generatePDFForEntry() {
-
+    async generatePDFForEntry() {
       const { entry } = this;
 
       if (!entry || !entry.Code || !entry.LastName || !entry.FirstName 
@@ -85,7 +93,7 @@ export default {
           || !entry.TimeFrom || !entry.DateFrom || !entry.DateTo || !entry.LeaveType) {
           console.error("Invalid entry data.");
           return;
-      };
+      }
 
       const currentDate = new Date().toLocaleDateString();
       const leaveDetails = [];
@@ -93,399 +101,394 @@ export default {
       const signDetails = [];
       const signDetails2 = [];
       const processedPositions = [];
-
+      
       const userCode = entry.Code;
 
-      const userBalanceDetails = this.$store.state.leaveModule.AllBalanceDetails.filter(user => user.EmployeeCode == userCode);
+      await this.$store.dispatch('leaveModule/loadAndConvertToBase64', logoPath);
 
-      console.log(userBalanceDetails)
+      this.fetchUserLeaveDetails(userCode)
+          .then(() => {
+            const userBalanceDetails = this.$store.state.leaveModule.userBalanceDetails;
+            const leaveTypeOrder = { VL: 1, SL: 2, EL: 3 };
+            userBalanceDetails.sort((a, b) => leaveTypeOrder[a.leaveType] - leaveTypeOrder[b.leaveType]);
 
-      const leaveTypeOrder = { VL: 1, SL: 2, EL: 3 };
-      userBalanceDetails.sort((a, b) => leaveTypeOrder[a.leaveType] - leaveTypeOrder[b.leaveType]);
+            let position = '';
+            let department = '';
+            let employeeStatus = '';
 
-      let position = '';
-      let department = '';
-      let employeeStatus = '';
+            userBalanceDetails.forEach(userEntry => {
+                position = userEntry.Position;
+                department = userEntry.Department;
+                employeeStatus = userEntry.EmployeeStatus;
 
-      userBalanceDetails.forEach(userEntry => {
-          position = userEntry.Position;
-          department = userEntry.Department;
-          employeeStatus = userEntry.EmployeeStatus;
+                const leaveTypeLabels = this.LeaveTypeLabels[userEntry.leaveType];
+                let additionalMessage = '';
 
-          const leaveTypeLabels = this.LeaveTypeLabels[userEntry.leaveType];
-          let additionalMessage = '';
-
-          if(userEntry.leaveType === null || userEntry.Remaining === 0){
-            leaveDetails.push([
-              { text: userEntry.Remaining.toString(), alignment: 'center', border: [false, false, false, false], style: 'dp', decoration: 'underline', decorationColor: 'black' },
-              { text: 'No Leaves Available', alignment: 'left', border: [false, false, false, false], style: 'dp1' },
-            ]);
-
-            leaveDetails2.push([
-              { text: userEntry.Remaining.toString(), alignment: 'center', border: [false, false, false, false], style: 'dp', decoration: 'underline', decorationColor: 'black' },
-              { text: 'No Leaves Available', alignment: 'left', border: [false, false, false, false], style: 'dp1' },
-            ]);
-          } else {
-
-            if (userEntry.leaveType === 'SL') {
-              additionalMessage = ' (Attach Medical Certificate issued by the Infirmary Physician)';
-            }
-
-            if (userEntry.leaveType === 'EL') {
-                additionalMessage = ' (Attach proof of emergency such as calamity, death, serious illness, and serious accident of a member of the immediate family)';
-            }
-
-            leaveDetails.push([
-              { text: userEntry.Remaining.toString(), alignment: 'center', border: [false, false, false, false], style: 'dp', decoration: 'underline', decorationColor: 'black' },
-              { text: leaveTypeLabels + additionalMessage, alignment: 'left', border: [false, false, false, false], style: 'dp1' },
-            ]);
-
-            leaveDetails2.push([
-                { text: userEntry.Remaining.toString(), alignment: 'center', border: [false, false, false, false], style: 'dp', decoration: 'underline', decorationColor: 'black' },
-                { text: leaveTypeLabels + additionalMessage, alignment: 'left', border: [false, false, false, false], style: 'dp1' },
-            ]);
-          }
-
-          // Check if signatures for the current position have already been added
-          if (!processedPositions.includes(userEntry.Position)) {
-              processedPositions.push(userEntry.Position);
-
-              if (userEntry.Class === 'OF') {
-                  signDetails.push([
-                      { text: `EMPLOYEE SIGNATURE`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                      { text: `APPROVED BY:\nSENIOR VICE PRESIDENT / \nVICE PRESIDENT`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                      { text: `RECEIVED BY:\nHUMAN RESOURCE PERSONEL`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                if(userEntry.leaveType === null || userEntry.Remaining === 0){
+                  leaveDetails.push([
+                    { text: userEntry.Remaining.toString(), alignment: 'center', border: [false, false, false, false], style: 'dp', decoration: 'underline', decorationColor: 'black' },
+                    { text: 'No Leaves Available', alignment: 'left', border: [false, false, false, false], style: 'dp1' },
                   ]);
-              } else {
-                  signDetails.push([
-                      { text: `EMPLOYEE SIGNATURE`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                      { text: `APPROVED BY:\nDEPARTMENT HEAD`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                      { text: `RECEIVED BY:\nHUMAN RESOURCE PERSONEL`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+
+                  leaveDetails2.push([
+                    { text: userEntry.Remaining.toString(), alignment: 'center', border: [false, false, false, false], style: 'dp', decoration: 'underline', decorationColor: 'black' },
+                    { text: 'No Leaves Available', alignment: 'left', border: [false, false, false, false], style: 'dp1' },
                   ]);
-              }
+                } else {
 
-              // Similar block for signDetails2
-              if (userEntry.Class === 'OF') {
-                  signDetails2.push([
-                      { text: `EMPLOYEE SIGNATURE`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                      { text: `APPROVED BY:\nSENIOR VICE PRESIDENT / \nVICE PRESIDENT`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                      { text: `RECEIVED BY:\nHUMAN RESOURCE PERSONEL`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                  if (userEntry.leaveType === 'SL') {
+                    additionalMessage = ' (Attach Medical Certificate issued by the Infirmary Physician)';
+                  }
+
+                  if (userEntry.leaveType === 'EL') {
+                      additionalMessage = ' (Attach proof of emergency such as calamity, death, serious illness, and serious accident of a member of the immediate family)';
+                  }
+
+                  leaveDetails.push([
+                    { text: userEntry.Remaining.toString(), alignment: 'center', border: [false, false, false, false], style: 'dp', decoration: 'underline', decorationColor: 'black' },
+                    { text: leaveTypeLabels + additionalMessage, alignment: 'left', border: [false, false, false, false], style: 'dp1' },
                   ]);
-              } else {
-                  signDetails2.push([
-                      { text: `EMPLOYEE SIGNATURE`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                      { text: `APPROVED BY:\nDEPARTMENT HEAD`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                      { text: `RECEIVED BY:\nHUMAN RESOURCE PERSONEL`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+
+                  leaveDetails2.push([
+                      { text: userEntry.Remaining.toString(), alignment: 'center', border: [false, false, false, false], style: 'dp', decoration: 'underline', decorationColor: 'black' },
+                      { text: leaveTypeLabels + additionalMessage, alignment: 'left', border: [false, false, false, false], style: 'dp1' },
                   ]);
-              }
-          }
+                }
 
-      });
+                // Check if signatures for the current position have already been added
+                if (!processedPositions.includes(userEntry.Position)) {
+                    processedPositions.push(userEntry.Position);
 
-      const totalPageHeight = 13 * 72;
-      const nestedTableHeight = 0.5 * (totalPageHeight);
+                    if (userEntry.Class === 'OF') {
+                        signDetails.push([
+                            { text: `EMPLOYEE SIGNATURE`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                            { text: `APPROVED BY:\nSENIOR VICE PRESIDENT / \nVICE PRESIDENT`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                            { text: `RECEIVED BY:\nHUMAN RESOURCE PERSONEL`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                        ]);
+                    } else {
+                        signDetails.push([
+                            { text: `EMPLOYEE SIGNATURE`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                            { text: `APPROVED BY:\nDEPARTMENT HEAD`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                            { text: `RECEIVED BY:\nHUMAN RESOURCE PERSONEL`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                        ]);
+                    }
 
-      const docDefinition = {
-        pageSize: {
-          width: 8.5 * 72,
-          height: totalPageHeight,
-        },
-        pageMargins: [10, 0, 10, 0],
-        background: [
-          {
-            image: this.base64Image,
-            width: 350,
-            height: 250,
-            alignment: 'center',
-            absolutePosition: { x: 0, y: totalPageHeight * 0.25 - 250 * 0.5 },
-          },
-          {
-            image: this.base64Image,
-            width: 350,
-            height: 250,
-            alignment: 'center',
-            absolutePosition: { x: 0, y: totalPageHeight * 0.75 - 240 * 0.5 },
-          },
-          {
-            canvas: [
-              {
-                type: 'line',
-                x1: 0,
-                y1: totalPageHeight * 0.5,
-                x2: 8.5 * 72,
-                y2: totalPageHeight * 0.5,
-                lineWidth: 1,
-                lineColor: '#000',
+                    // Similar block for signDetails2
+                    if (userEntry.Class === 'OF') {
+                        signDetails2.push([
+                            { text: `EMPLOYEE SIGNATURE`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                            { text: `APPROVED BY:\nSENIOR VICE PRESIDENT / \nVICE PRESIDENT`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                            { text: `RECEIVED BY:\nHUMAN RESOURCE PERSONEL`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                        ]);
+                    } else {
+                        signDetails2.push([
+                            { text: `EMPLOYEE SIGNATURE`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                            { text: `APPROVED BY:\nDEPARTMENT HEAD`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                            { text: `RECEIVED BY:\nHUMAN RESOURCE PERSONEL`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                        ]);
+                    }
+                }
+
+            });
+
+            const totalPageHeight = 13 * 72;
+            const nestedTableHeight = 0.5 * (totalPageHeight);
+
+            const docDefinition = {
+              pageSize: {
+                width: 8.5 * 72,
+                height: totalPageHeight,
               },
-            ],
-          },
-        ],
-        content: [
-          {
-            table: {
-              widths: ['*'],
-              heights: [nestedTableHeight],
-              body: [
-                [
+              pageMargins: [10, 0, 10, 0],
+              background: [
+                {
+                  image: this.base64Image,
+                  width: 350,
+                  height: 250,
+                  alignment: 'center',
+                  absolutePosition: { x: 0, y: totalPageHeight * 0.25 - 250 * 0.5 },
+                },
+                {
+                  image: this.base64Image,
+                  width: 350,
+                  height: 250,
+                  alignment: 'center',
+                  absolutePosition: { x: 0, y: totalPageHeight * 0.75 - 240 * 0.5 },
+                },
+                {
+                canvas: [
                   {
-                    border: [false, false, false, false],
-                    stack: [
-                      {
-                        table: {
-                          widths: ['*'],
-                          body: [
-                            [
-                              { text: 'HRD FORM NO.____REVISED 2019', alignment: 'left', border: [false, false, false, false], style: 'foot' },
-                            ]
-                          ]
-                        }
-                      },
-                      { text: '\n' },
-                      { text: 'UNIVERSITY OF THE EAST RAMON MAGSAYSAY MEMORIAL MEDICAL CENTER, INC', style: 'header', alignment: 'center' },
-                      { text: 'LEAVE APPLICATION FORM', alignment: 'center', style: 'app' },
-                      {
-                        table: {
-                          widths: [ '*', '*', '*'],
-                          body: [
-                            [
-                              {
-                                text: [
-                                  { text: 'DATE FILED: ', style: 'dp' },
-                                  { text: currentDate, style: 'dp1' },
-                                ],
-                                border: [false, false, false, false],
-                              },
-                              { text: `POSITION DESCRIPTION`, alignment: 'center', border: [false, false, false, false], style: 'dp1' },
-                              { text: ``, border: [false, false, false, false] },
-                            ],
-                          ],
-                        },
-                      },
-                      {
-                        table: {
-                          widths: ['12.5%', '25%', '25%', '25%', '12.5%'],
-                          body: [
-                            [
-                              { text: 'CODE', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                              { text: 'NAME', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                              { text: 'POSITION', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                              { text: 'DEPARTMENT', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                              { text: 'STATUS', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                            ],
-                            [
-                              { text: `${entry.Code}`, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                              { text: `${entry.LastName}, ${entry.FirstName} ${entry.MiddleInitial}.`, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                              { text: position, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                              { text: department+ ' ' + 'DEPARTMENT', alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                              { text: employeeStatus, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                            ],
-                          ],
-                        },
-                      },
-                      { text: ' ', fontSize: 5 },
-                      { text: 'Leave Details', alignment: 'center', style: 'app' },
-                      {
-                        table: {
-                          widths: ['25%', '75%'],
-                          body: [
-                            [
-                              { text: 'CREDITS', alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                              { text: 'LEAVE TYPE', border: [false, false, false, false], style: 'dp' },
-                            ],
-                            ...leaveDetails,
-                          ],
-                        },
-                      },
-                      { text: ' ', fontSize: 8 },
-                      { text: 'Leave Application Details', alignment: 'center', style: 'app' },
-                      { text: ' ', fontSize: 5 },
-                      {
-                        table: {
-                          widths: ['20%', '10%', '15%', '15%', '40%'],
-                          body: [
-                            [
-                              { text: 'Leave Type', alignment: 'center', style: 'dp' },
-                              { text: 'Days', alignment: 'center', style: 'dp' },
-                              { text: 'Date From', alignment: 'center', style: 'dp' },
-                              { text: 'Date To', alignment: 'center', style: 'dp' },
-                              { text: 'Reason', alignment: 'center', style: 'dp' },
-                            ],
-                            [
-                              { text: this.LeaveTypeLabels[entry.LeaveType], alignment: 'center', style: 'dp1' },
-                              { text: entry.Days, alignment: 'center', style: 'dp1' },
-                              { text: this.formatDateTime(entry.DateFrom), alignment: 'center', style: 'dp1' },
-                              { text: this.formatDateTime(entry.DateTo), alignment: 'center', style: 'dp1' },
-                              { text: entry.Reason, alignment: 'center', style: 'dp1' },
-                            ],
-                          ],
-                        },
-                      },
-                      { text: '\n\n\n\n\n\n' },
-                      {
-                        table: {
-                          widths: ['*', '*', '*'],
-                          body: [
-                            [
-                              { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                              { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                              { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                            ],
-                            ...signDetails
-                          ],
-                        },
-                      },
-                    ],
+                    type: 'line',
+                    x1: 0,
+                    y1: totalPageHeight * 0.5,
+                    x2: 8.5 * 72,
+                    y2: totalPageHeight * 0.5,
+                    lineWidth: 1,
+                    lineColor: '#000',
                   },
                 ],
+              },
               ],
-            },
-          },
-          {
-            table: {
-              widths: ['*'],
-              heights: [nestedTableHeight],
-              body: [
-                [
-                  {
-                    border: [false, false, false, false],
-                    stack: [
-                      {
-                        table: {
-                          widths: ['*'],
-                          body: [
-                            [
-                              { text: 'HRD FORM NO.____REVISED 2019', alignment: 'left', border: [false, false, false, false], style: 'foot' },
-                            ]
-                          ]
-                        }
-                      },
-                      { text: '\n' },
-                      { text: 'UNIVERSITY OF THE EAST RAMON MAGSAYSAY MEMORIAL MEDICAL CENTER, INC', style: 'header', alignment: 'center' },
-                      { text: 'LEAVE APPLICATION FORM', alignment: 'center', style: 'app' },
-                      {
-                        table: {
-                          widths: [ '*', '*', '*'],
-                          body: [
-                            [
-                              {
-                                text: [
-                                  { text: 'DATE FILED: ', style: 'dp' },
-                                  { text: currentDate, style: 'dp1' },
+              content: [
+                {
+                  table: {
+                    widths: ['*'],
+                    heights: [nestedTableHeight],
+                    body: [
+                      [
+                        {
+                          border: [false, false, false, false],
+                          stack: [
+                          {
+                            table: {
+                              widths: ['*'],
+                              body: [
+                                [
+                                  { text: 'HRD FORM NO.____REVISED 2019', alignment: 'left', border: [false, false, false, false], style: 'foot' },
+                                ]
+                              ]
+                            }
+                          },
+                          { text: '\n' },
+                          { text: 'UNIVERSITY OF THE EAST RAMON MAGSAYSAY MEMORIAL MEDICAL CENTER, INC', style: 'header', alignment: 'center' },
+                          { text: 'LEAVE APPLICATION FORM', alignment: 'center', style: 'app' },
+                          {
+                            table: {
+                              widths: [ '*', '*', '*'],
+                              body: [
+                                [
+                                  {
+                                    text: [
+                                      { text: 'DATE FILED: ', style: 'dp' },
+                                      { text: currentDate, style: 'dp1' },
+                                    ],
+                                    border: [false, false, false, false],
+                                  },
+                                  { text: `POSITION DESCRIPTION`, alignment: 'center', border: [false, false, false, false], style: 'dp1' },
+                                  { text: ``, border: [false, false, false, false] },
                                 ],
-                                border: [false, false, false, false],
-                              },
-                              { text: `POSITION DESCRIPTION`, alignment: 'center', border: [false, false, false, false], style: 'dp1' },
-                              { text: ``, border: [false, false, false, false] },
-                            ],
-                          ],
-                        },
-                      },
-                      {
-                        table: {
-                          widths: ['12.5%', '25%', '25%', '25%', '12.5%'],
-                          body: [
-                            [
-                              { text: 'CODE', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                              { text: 'NAME', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                              { text: 'POSITION', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                              { text: 'DEPARTMENT', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                              { text: 'STATUS', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
-                            ],
-                            [
-                              { text: `${entry.Code}`, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                              { text: `${entry.LastName}, ${entry.FirstName} ${entry.MiddleInitial}.`, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                              { text: position, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                              { text: department+ ' ' + 'DEPARTMENT', alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                              { text: employeeStatus, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
-                            ],
-                          ],
-                        },
-                      },
-                      { text: ' ', fontSize: 5 },
-                      { text: 'Leave Details', alignment: 'center', style: 'app' },
-                      {
-                        table: {
-                          widths: ['25%', '75%'],
-                          body: [
-                            [
-                              { text: 'CREDITS', alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                              { text: 'LEAVE TYPE', border: [false, false, false, false], style: 'dp' },
-                            ],
-                            ...leaveDetails2,
-                          ],
-                        },
-                      },
-                      { text: ' ', fontSize: 8 },
-                      { text: 'Leave Application Details', alignment: 'center', style: 'app' },
-                      { text: ' ', fontSize: 5 },
-                      {
-                        table: {
-                          widths: ['20%', '10%', '15%', '15%', '40%'],
-                          body: [
-                            [
-                              { text: 'Leave Type', alignment: 'center', style: 'dp' },
-                              { text: 'Days', alignment: 'center', style: 'dp' },
-                              { text: 'Date From', alignment: 'center', style: 'dp' },
-                              { text: 'Date To', alignment: 'center', style: 'dp' },
-                              { text: 'Reason', alignment: 'center', style: 'dp' },
-                            ],
-                            [
-                              { text: this.LeaveTypeLabels[entry.LeaveType], alignment: 'center', style: 'dp1' },
-                              { text: entry.Days, alignment: 'center', style: 'dp1' },
-                              { text: this.formatDateTime(entry.DateFrom), alignment: 'center', style: 'dp1' },
-                              { text: this.formatDateTime(entry.DateTo), alignment: 'center', style: 'dp1' },
-                              { text: entry.Reason, alignment: 'center', style: 'dp1' },
-                            ],
-                          ],
-                        },
-                      },
-                      { text: '\n\n\n\n\n\n' },
-                      {
-                        table: {
-                          widths: ['*', '*', '*'],
-                          body: [
-                            [
-                              { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                              { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                              { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
-                            ],
-                            ...signDetails2
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                ],
+                              ],
+                            },
+                          },
+                          {
+                            table: {
+                              widths: ['12.5%', '25%', '25%', '25%', '12.5%'],
+                              body: [
+                                [
+                                  { text: 'CODE', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                  { text: 'NAME', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                  { text: 'POSITION', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                  { text: 'DEPARTMENT', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                  { text: 'STATUS', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                ],
+                                [
+                                  { text: `${entry.Code}`, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                  { text: `${entry.LastName}, ${entry.FirstName} ${entry.MiddleInitial}.`, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                  { text: position, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                  { text: department+ ' ' + 'DEPARTMENT', alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                  { text: employeeStatus, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                ],
+                              ],
+                            },
+                          },
+                          { text: ' ', fontSize: 5 },
+                          { text: 'Leave Details', alignment: 'center', style: 'app' },
+                          {
+                            table: {
+                              widths: ['25%', '75%'],
+                              body: [
+                                [
+                                  { text: 'CREDITS', alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                                  { text: 'LEAVE TYPE', border: [false, false, false, false], style: 'dp' },
+                                ],
+                                ...leaveDetails,
+                              ],
+                            },
+                          },
+                          { text: ' ', fontSize: 8 },
+                          { text: 'Leave Application Details', alignment: 'center', style: 'app' },
+                          { text: ' ', fontSize: 5 },
+                          {
+                            table: {
+                              widths: ['20%', '10%', '15%', '15%', '40%'],
+                              body: [
+                                [
+                                  { text: 'Leave Type', alignment: 'center', style: 'dp' },
+                                  { text: 'Days', alignment: 'center', style: 'dp' },
+                                  { text: 'Date From', alignment: 'center', style: 'dp' },
+                                  { text: 'Date To', alignment: 'center', style: 'dp' },
+                                  { text: 'Reason', alignment: 'center', style: 'dp' },
+                                ],
+                                [
+                                  { text: this.LeaveTypeLabels[entry.LeaveType], alignment: 'center', style: 'dp1' },
+                                  { text: entry.Days, alignment: 'center', style: 'dp1' },
+                                  { text: this.formatDateTime(entry.DateFrom), alignment: 'center', style: 'dp1' },
+                                  { text: this.formatDateTime(entry.DateTo), alignment: 'center', style: 'dp1' },
+                                  { text: entry.Reason, alignment: 'center', style: 'dp1' },
+                                ],
+                              ],
+                            },
+                          },
+                          { text: '\n\n\n\n\n\n' },
+                          {
+                            table: {
+                              widths: ['*', '*', '*'],
+                              body: [
+                                [
+                                  { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                                  { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                                  { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                                ],
+                                ...signDetails
+                              ],
+                            },
+                          },
+                        ],
+                        }
+                      ]
+                    ]
+                  }
+                },
+                {
+                  table: {
+                    widths: ['*'],
+                    heights: [nestedTableHeight],
+                    body: [
+                      [
+                        {
+                          border: [false, false, false, false],
+                          stack: [
+                          {
+                            table: {
+                              widths: ['*'],
+                              body: [
+                                [
+                                  { text: 'HRD FORM NO.____REVISED 2019', alignment: 'left', border: [false, false, false, false], style: 'foot' },
+                                ]
+                              ]
+                            }
+                          },
+                          { text: '\n' },
+                          { text: 'UNIVERSITY OF THE EAST RAMON MAGSAYSAY MEMORIAL MEDICAL CENTER, INC', style: 'header', alignment: 'center' },
+                          { text: 'LEAVE APPLICATION FORM', alignment: 'center', style: 'app' },
+                          {
+                            table: {
+                              widths: [ '*', '*', '*'],
+                              body: [
+                                [
+                                  {
+                                    text: [
+                                      { text: 'DATE FILED: ', style: 'dp' },
+                                      { text: currentDate, style: 'dp1' },
+                                    ],
+                                    border: [false, false, false, false],
+                                  },
+                                  { text: `POSITION DESCRIPTION`, alignment: 'center', border: [false, false, false, false], style: 'dp1' },
+                                  { text: ``, border: [false, false, false, false] },
+                                ],
+                              ],
+                            },
+                          },
+                          {
+                            table: {
+                              widths: ['12.5%', '25%', '25%', '25%', '12.5%'],
+                              body: [
+                                [
+                                  { text: 'CODE', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                  { text: 'NAME', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                  { text: 'POSITION', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                  { text: 'DEPARTMENT', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                  { text: 'STATUS', alignment: 'center', border: [false, false, false, false], style: 'dp', fillColor: '#cccccc' },
+                                ],
+                                [
+                                  { text: `${entry.Code}`, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                  { text: `${entry.LastName}, ${entry.FirstName} ${entry.MiddleInitial}.`, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                  { text: position, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                  { text: department+ ' ' + 'DEPARTMENT', alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                  { text: employeeStatus, alignment: 'center', border: [false, false, false, false], style: 'dp1', fillColor: '#cccccc' },
+                                ],
+                              ],
+                            },
+                          },
+                          { text: ' ', fontSize: 5 },
+                          { text: 'Leave Details', alignment: 'center', style: 'app' },
+                          {
+                            table: {
+                              widths: ['25%', '75%'],
+                              body: [
+                                [
+                                  { text: 'CREDITS', alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                                  { text: 'LEAVE TYPE', border: [false, false, false, false], style: 'dp' },
+                                ],
+                                ...leaveDetails2,
+                              ],
+                            },
+                          },
+                          { text: ' ', fontSize: 8 },
+                          { text: 'Leave Application Details', alignment: 'center', style: 'app' },
+                          { text: ' ', fontSize: 5 },
+                          {
+                            table: {
+                              widths: ['20%', '10%', '15%', '15%', '40%'],
+                              body: [
+                                [
+                                  { text: 'Leave Type', alignment: 'center', style: 'dp' },
+                                  { text: 'Days', alignment: 'center', style: 'dp' },
+                                  { text: 'Date From', alignment: 'center', style: 'dp' },
+                                  { text: 'Date To', alignment: 'center', style: 'dp' },
+                                  { text: 'Reason', alignment: 'center', style: 'dp' },
+                                ],
+                                [
+                                  { text: this.LeaveTypeLabels[entry.LeaveType], alignment: 'center', style: 'dp1' },
+                                  { text: entry.Days, alignment: 'center', style: 'dp1' },
+                                  { text: this.formatDateTime(entry.DateFrom), alignment: 'center', style: 'dp1' },
+                                  { text: this.formatDateTime(entry.DateTo), alignment: 'center', style: 'dp1' },
+                                  { text: entry.Reason, alignment: 'center', style: 'dp1' },
+                                ],
+                              ],
+                            },
+                          },
+                          { text: '\n\n\n\n\n\n' },
+                          {
+                            table: {
+                              widths: ['*', '*', '*'],
+                              body: [
+                                [
+                                  { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                                  { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                                  { text: `___________________________________`, alignment: 'center', border: [false, false, false, false], style: 'dp' },
+                                ],
+                                ...signDetails2
+                              ],
+                            },
+                          },
+                        ],
+                        }
+                      ]
+                    ]
+                  }
+                }
               ],
-            },
-          },
-        ],
+              styles: {
+                header: { fontSize: 14, bold: true, margin: [0, 0, 0, 10] },
+                headerr: { fontSize: 20, bold: true, margin: [0, 0, 0, 10] },
+                app: { fontSize: 11, bold: true },
+                dp: { fontSize: 9, bold: true },
+                dp1: { fontSize: 9, bold: false },
+                foot: { fontSize: 7, bold: true },
+              },
+            };
 
-        styles: {
-          header: { fontSize: 14, bold: true, margin: [0, 0, 0, 10] },
-          headerr: { fontSize: 20, bold: true, margin: [0, 0, 0, 10] },
-          app: { fontSize: 11, bold: true },
-          dp: { fontSize: 9, bold: true },
-          dp1: { fontSize: 9, bold: false, },
-          foot: { fontSize: 7, bold: true },
-        },
-
-      };
+            const pdfDoc = pdfMake.createPdf(docDefinition);
+            pdfDoc.getBlob((blob) => {
+              const newWindow = window.open();
+              const url = URL.createObjectURL(blob);
+              newWindow.location.href = url;
+            });
+          });
+    }
 
 
-      const pdfDoc = pdfMake.createPdf(docDefinition);
-      pdfDoc.getBlob((blob) => {
-          const newWindow = window.open();
-          const url = URL.createObjectURL(blob);
-          newWindow.location.href = url;
-      });
-
-    },
-
-  },
-
-  created() {
-    this.loadAndConvertToBase64();
   },
 };
 </script>

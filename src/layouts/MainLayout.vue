@@ -88,6 +88,23 @@
           </q-card>
         </q-expansion-item>
 
+
+        <q-expansion-item
+          class="custom-expansion-item"
+          icon="schedule"
+          label="DTR Management"
+        >
+          <q-card>
+            <q-card-section>
+              <EssentialLink
+                v-for="link in DTRLinks"
+                :key="link.title"
+                v-bind="link"
+              />
+            </q-card-section>
+          </q-card>
+        </q-expansion-item>
+
         <q-item clickable @click="onLogout()">
           <q-item-section avatar>
             <q-icon name="logout" />
@@ -125,6 +142,9 @@ export default defineComponent({
     employeeFullName() {
       return this.$store.getters["user_module/employee_full_name"];
     },
+    isHR() {
+      return this.$store.getters["user_module/is_hr"];
+    },
     isPISApprover() {
       return this.$store.getters["user_module/is_pis_approver"];
     },
@@ -137,15 +157,19 @@ export default defineComponent({
     mainLinks() {
       return this.$store.getters["helpers/mainLinks"];
     },
+    DTRLinks() {
+      const dtrLinks = this.$store.getters["helpers/DTRLinks"];
+      return dtrLinks.length > 0 ? dtrLinks[0].children : [];
+    },
     filteredChildren() {
-      if (this.isAdmin) {
+      if (this.isLeaveApprover) {
         return this.mainLinks[0].children;
       } else {
         return this.mainLinks[0].children.filter(child => child.title !== 'Leave Approval');
       }
     },
-    isAdmin() {
-      return this.$store.state.user_module.isAdmin;
+    isLeaveApprover() {
+      return this.$store.getters["user_module/is_leave_approver"];
     },
   },
   data: function () {
@@ -236,6 +260,22 @@ export default defineComponent({
       ];
       return linksList;
     },
+
+    // DTRLinks: function () {
+    //   let DTRList = [
+    //     {
+    //       title: "Daily Time Record",
+    //       icon: "mail",
+    //       link: "/other-request",
+    //     },
+    //     {
+    //       title: "Time Adjustment",
+    //       icon: "upload",
+    //       link: "/attachment-archive",
+    //     },
+    //   ];
+    //   return DTRList;
+    // },
     removeTab: function (title) {
       const itemToBeRemoved = { title: title };
       let index = this.essentialLinks.findIndex(

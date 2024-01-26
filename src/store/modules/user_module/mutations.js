@@ -7,7 +7,6 @@ export default {
     state.is_license = data.is_license;
     state.access_rights.is_pis_approver = data.access_rights.is_pis_approver;
     state.access_rights.is_leave_approver = data.access_rights.is_leave_approver;
-    state.isAdmin = data.isAdmin;
   },
   SET_DEFAULT_VALUES(state) {
     state.token = null;
